@@ -55,7 +55,7 @@ const chrome = window['chrome'];
                                 ];
                                 if (responseTypes.indexOf(evt.data.type) >= 0) {
                                     let requestId = evt.data.requestId;
-                                    if (evt.data.fallback || (evt.data.responseData && evt.data.responseData.fallback)) {
+                                    if (evt.data.responseData && evt.data.responseData.fallback) {
                                         if (requests[requestId]) {
                                             try {
                                                 fallbackPort.postMessage(requests[requestId]);
@@ -138,7 +138,7 @@ const chrome = window['chrome'];
                 return r;
             });
 
-            let credential = webauthnParse(webauthnResponse.credential);
+            let credential = webauthnParse(webauthnResponse.responseData.credential);
             return credential;
         } catch (e) {
             return window['nativeCredentials'].create.bind(navigator.credentials)(options);
@@ -163,7 +163,7 @@ const chrome = window['chrome'];
                 return r;
             });
 
-            let credential = webauthnParse(webauthnResponse.credential);
+            let credential = webauthnParse(webauthnResponse.responseData.credential);
             //TODO: add getClientExtensionResults() internal slot
             return credential;
         } catch {

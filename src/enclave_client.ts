@@ -6,7 +6,7 @@ import * as Messages from './messages';
 import { equals, crypto_hash_sha256 } from "./crypto";
 import { appIdToShortName } from "./known_app_ids";
 
-export default class Client {
+export default class EnclaveClient {
     pairing: Pairing;
     pendingRequest: {[requestId: string]: Function} = {};
 

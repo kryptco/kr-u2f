@@ -1,14 +1,14 @@
 import { U2FAuthenticateResponse, U2FRegisterResponse } from "./protocol";
-import Client from "./enclave_client";
+import EnclaveClient from "./enclave_client";
 import { Pairing } from "./krpairing";
 
-export let client : Promise<Client>;
+export let client : Promise<EnclaveClient>;
 if ((<any>window).krClient) {
     client = (<any>window).krClient;
 } else {
-    (<any>window).krClient = client = new Promise<Client>((resolve, reject) => {
+    (<any>window).krClient = client = new Promise<EnclaveClient>((resolve, reject) => {
         Pairing.loadOrGenerate().then(p => {
-            resolve(new Client(p))
+            resolve(new EnclaveClient(p))
             console.log('new client resolved');
         })
     });

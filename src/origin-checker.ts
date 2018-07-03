@@ -10,6 +10,8 @@ import { resolve } from 'url';
 import { resolveCname } from 'dns';
 import { int } from 'aws-sdk/clients/datapipeline';
 
+export const BAD_APPID = 2;
+
 /**
  * FIDO AppId (v1.2) 3.1.2.3 & 3.1.2.14
  * @param origin 

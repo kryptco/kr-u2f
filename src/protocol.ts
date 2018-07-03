@@ -50,6 +50,7 @@ export class U2FRegisterResponse {
     attestation_certificate: Uint8Array;
 	@Transform(v => from_base64(v))
     key_handle: Uint8Array;
+    error: string;
 }
 
 export const KRYPTON_U2F_MAGIC = new Uint8Array([
@@ -69,6 +70,7 @@ export class U2FAuthenticateResponse {
     signature: Uint8Array;
 	@Transform(v => from_base64(v))
     public_key: Uint8Array;
+    error: string;
 }
 
 export class Response {
