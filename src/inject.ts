@@ -37,6 +37,7 @@ const chrome = window['chrome'];
                 let requests = {};
                 let requestCounter = 0;
                 let port = {
+                    krPort: true,
                     name: connectInfo.name,
                     onMessage: {
                         addListener: function (l) {
@@ -108,6 +109,21 @@ const chrome = window['chrome'];
                 return nativeRuntime.connect.bind(chrome.runtime)(extensionId, connectInfo);
             }
         };
+
+        //  The page may have already stored a singleton connected to the native
+        //  extension. In this case, disconnect it and retry if on GitHub
+        if ('u2f' in window && 'port_' in window['u2f']) {
+            if (!window['u2f'].port_.port_.krPort) {
+                let githubRetryButton : any = document.querySelector(".js-u2f-auth-retry");
+                if (githubRetryButton && githubRetryButton.click) {
+                    console.log("disconnecting existing U2F port");
+                    window['u2f'].port_.port_.disconnect();
+                    window['u2f'].port_ = null;
+
+                    githubRetryButton.click();
+                }
+            }
+        }
     }
 
     injectMessagePort();
