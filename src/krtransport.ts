@@ -120,11 +120,13 @@ async function sendSNS(pairing: Pairing, message: string) {
             'APNS': apnsPayload,
             'APNS_SANDBOX': apnsPayload,
             'GCM': await stringify({
-                'priority': 'high',
-                'time_to_live': 0,
-                'delay_while_idle': false,
-                'message': message,
-                'queue': await pairing.sendQueueName(),
+                data: {
+                    'priority': 'high',
+                    'time_to_live': 0,
+                    'delay_while_idle': false,
+                    'message': message,
+                    'queue': await pairing.sendQueueName(),
+                }
             }),
         }),
     };
