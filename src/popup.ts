@@ -57,14 +57,15 @@ chrome.runtime.onMessage.addListener(async (msg, sender) => {
             pair.classList.add('remove');
             accounts.classList.remove('remove');
             console.log(r.u2fAccounts);
+            if (r.u2fAccounts) {
+                for (var i = 0; i < r.u2fAccounts.length; i++) {
+                    var acctId = r.u2fAccounts[i];
+                    var acctElem = document.getElementById(acctId);
 
-            for (var i = 0; i < r.u2fAccounts.length; i++) {
-                var acctId = r.u2fAccounts[i];
-                var acctElem = document.getElementById(acctId);
-                
-                if (acctElem != null) {
-                    acctElem.classList.remove("unsecured");
-                    acctElem.classList.add("secured");    
+                    if (acctElem != null) {
+                        acctElem.classList.remove("unsecured");
+                        acctElem.classList.add("secured");
+                    }
                 }
             }
 

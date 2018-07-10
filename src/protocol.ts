@@ -26,7 +26,7 @@ export class Request {
     @Type(() => U2FRegisterRequest)
     u2f_register_request?: U2FRegisterRequest;
     @Type(() => U2FAuthenticateRequest)
-    u2f_authenticate_request?: U2FRegisterRequest;
+    u2f_authenticate_request?: U2FAuthenticateRequest;
 }
 
 export class MeRequest {
