@@ -83,7 +83,10 @@ export default class EnclaveClient {
                 //  record successful registration for popup UI
                 let shortName = appIdToShortName(r.app_id);
                 if (shortName) {
-                    if (this.pairing.u2fAccounts && this.pairing.u2fAccounts.indexOf(shortName) < 0) {
+                    if (!this.pairing.u2fAccounts) {
+                        this.pairing.u2fAccounts = [];
+                    }
+                    if (this.pairing.u2fAccounts.indexOf(shortName) < 0) {
                         this.pairing.u2fAccounts.push(shortName);
                         this.pairing.save();
                     }
