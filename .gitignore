@@ -1,0 +1,9 @@
+dist/js
+dist_ff/js
+node_modules
+target
+KryptonU2F.safariextension/js
+u2f-chrome.zip
+dist/*.css
+dist/*.css.map
+.sass-cache/

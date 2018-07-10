@@ -1,0 +1,33 @@
+                    <svg width="103px" height="116px" viewBox="0 0 103 116" version="1.1">
+                        <!-- Generator: Sketch 47.1 (45422) - http://www.bohemiancoding.com/sketch -->
+                        <title>Krypton Icon</title>
+                        <desc>Created with Sketch.</desc>
+                        <defs>
+                            <mask id="cut-ellipse">
+                                <path d="M51.2418137,0 C84.6603878,0 102.483627,22.305676 102.483627,22.305676 L102.483627,73.6087307 C102.483627,102.606109 64.6092433,113.758947 51.2418137,115.989515 L51.2418137,0 L51.2418137,0 Z M51.2418137,0 C17.8232394,0 -8.27488601e-15,22.305676 0,22.305676 C0,44.6113537 8.27488601e-15,44.611352 0,73.6087307 C-8.27488601e-15,102.606109 37.874384,113.758947 51.2418137,115.989515 L51.2418137,0 L51.2418137,0 Z"
+                                      fill="white"/>
+                                <ellipse fill="black" cx="51.2418137" cy="55.6658938" rx="28.9627643" ry="28.9973788"/>
+                                <ellipse fill="white" cx="51.2418137" cy="55.6658938" rx="20.0511444" ry="20.0751084"/>
+                            </mask>
+                            <!-- https://css-tricks.com/gooey-effect/ -->
+                            <filter id="fancy-goo">
+                                <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
+                                <feColorMatrix in="blur" mode="matrix"
+                                               values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo"/>
+                                <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+                            </filter>
+                        </defs>
+                        <g id="krypton" mask="url(#cut-ellipse)">
+                            <g id="progress">
+                                <g id="blobs" rx="7px" ry="7px">
+                                    <rect width="15px" height="120%"/>
+                                    <rect width="15px" height="116%" x="15px"/>
+                                    <rect width="15px" height="118%" x="30px"/>
+                                    <rect width="15px" height="126%" x="45px"/>
+                                    <rect width="15px" height="122%" x="60px"/>
+                                    <rect width="15px" height="124%" x="75px"/>
+                                    <rect width="15px" height="118%" x="90px"/>
+                                </g>
+                            </g>
+                        </g>
+                    </svg>
