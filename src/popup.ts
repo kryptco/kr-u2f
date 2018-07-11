@@ -6,6 +6,7 @@ import { equals } from './crypto';
 
 $(document).ready(async () => {
     
+    $('.extension-version').text(chrome.runtime.getManifest().version);
     var pair = document.getElementById("pairScreen");
 
     onPopupOpen();
