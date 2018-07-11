@@ -112,7 +112,8 @@ const chrome = window['chrome'];
 
         //  The page may have already stored a singleton connected to the native
         //  extension. In this case, disconnect it and retry if on GitHub
-        if ('u2f' in window && 'port_' in window['u2f']) {
+        let u2f = window['u2f'];
+        if (u2f && u2f.port_ && u2f.port_.port_) {
             if (!window['u2f'].port_.port_.krPort) {
                 let githubRetryButton : any = document.querySelector(".js-u2f-auth-retry");
                 if (githubRetryButton && githubRetryButton.click) {
