@@ -211,19 +211,19 @@ async function getTrustedFacetsFromAppId(appId: string, remainingRetryAttempts: 
     }
 }
 
-export async function getU2fVerifiedAppId(origin: string, appId: string) : Promise<string> {
+export async function verifyU2fAppId(origin: string, appId: string) : Promise<void> {
     if(origin)
         origin = origin.toLowerCase();
     if(appId)
         appId = appId.toLowerCase();
     if(appId == origin) {
         //FIDO AppID & Facet (v1.2) 3.1.2.1
-        return Promise.resolve(appId);
+        return Promise.resolve();
     }
 
     if(!appId) {
         //FIDO AppID & Facet (v1.2) 3.1.2.2
-        return Promise.resolve(origin);
+        return Promise.resolve();
     }
 
     //FIDO AppID & Facev (v1.2) 3.1.2.3
@@ -238,5 +238,5 @@ export async function getU2fVerifiedAppId(origin: string, appId: string) : Promi
         return Promise.reject('Trusted Facets list does not include the request origin ' + origin);
     }
 
-    return Promise.resolve(appId);
+    return Promise.resolve();
 }

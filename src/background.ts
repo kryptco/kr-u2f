@@ -10,7 +10,7 @@ import { client, makeRegisterData, addPresenceAndCounter } from './u2f';
 
 
 import {getOriginFromUrl, getDomainFromOrigin} from './url';
-import { BAD_APPID, getU2fVerifiedAppId, checkIsRegistrableDomainSuffix} from './origin-checker';
+import { BAD_APPID, verifyU2fAppId, checkIsRegistrableDomainSuffix} from './origin-checker';
 
 chrome.runtime.onMessage.addListener(async (msg, sender) => {
     if (msg.type) {
@@ -187,7 +187,7 @@ async function handle_u2f_register(msg: any, sender: chrome.runtime.MessageSende
         || origin;
 
     try {
-        appId = await getU2fVerifiedAppId(origin, appId)
+        await verifyU2fAppId(origin, appId);
     } catch (err) {
         console.error(err);
         return {errorCode: BAD_APPID};
@@ -268,7 +268,8 @@ async function handle_webauthn_sign(msg: any, sender: chrome.runtime.MessageSend
         let appId: string;
         if (pkOptions.extensions && pkOptions.extensions.appid) {
             try {
-                appId = await getU2fVerifiedAppId(origin, pkOptions.extensions.appid);
+                await verifyU2fAppId(origin, pkOptions.extensions.appid);
+                appId = pkOptions.extensions.appid
             } catch (err) {
                 console.error(err);
                 return {errorCode: BAD_APPID};
@@ -379,7 +380,7 @@ async function handle_u2f_sign(msg: any, sender: chrome.runtime.MessageSender) {
     }
 
     try {
-        matchingAppId = await getU2fVerifiedAppId(origin, matchingAppId);
+        await verifyU2fAppId(origin, matchingAppId);
     } catch(err) {
         console.error(err);
         return {errorCode: BAD_APPID};
