@@ -181,8 +181,13 @@ async function handle_webauthn_register(msg: any, sender: chrome.runtime.Message
 }
 
 async function handle_u2f_register(msg: any, sender: chrome.runtime.MessageSender | browser.runtime.MessageSender) {
+    let origin = getOriginFromUrl(sender.url);
+    let appId = msg.appId
+        || ((msg.registerRequests && msg.registerRequests.length > 0) ? msg.registerRequests[0].appId : null)
+        || origin;
+
     try {
-        msg.appId = await getU2fVerifiedAppId(msg.origin, msg.appId)
+        appId = await getU2fVerifiedAppId(origin, appId)
     } catch (err) {
         console.error(err);
         return {errorCode: BAD_APPID};
@@ -193,23 +198,26 @@ async function handle_u2f_register(msg: any, sender: chrome.runtime.MessageSende
     if (!c.pairing.isPaired()) {
         return {fallback: true};
     }
-
-    let origin = getOriginFromUrl(sender.url);
-
-    let appId = msg.appId
-        || ((msg.registerRequests && msg.registerRequests.length > 0) ? msg.registerRequests[0].appId : null)
-        || origin;
+    let existingKeyHandles : string[] = [];
     if (msg.registeredKeys) {
         for (var i = 0; i < msg.registeredKeys.length; i++) {
-            try {
-                let keyHandle = await from_base64_url_nopad(msg.registeredKeys[i].keyHandle);
-                if (await c.mapKeyHandleToMatchingAppId(keyHandle, {appId})) {
-                    //  already registered
-                    return {fallback: true};
-                }
-            } catch (e) { 
-                console.log(e);
+            existingKeyHandles.push(msg.registeredKeys[i].keyHandle);
+        }
+    }
+    if (msg.signRequests) {
+        for (var i = 0; i < msg.signRequests.length; i++) {
+            existingKeyHandles.push(msg.signRequests[i].keyHandle);
+        }
+    }
+    for (var i = 0; i < existingKeyHandles.length; i++) {
+        try {
+            let keyHandle = await from_base64_url_nopad(existingKeyHandles[i]);
+            if (await c.mapKeyHandleToMatchingAppId(keyHandle, { appId })) {
+                //  already registered
+                return { fallback: true };
             }
+        } catch (e) {
+            console.log(e);
         }
     }
 
@@ -330,14 +338,10 @@ async function handle_webauthn_sign(msg: any, sender: chrome.runtime.MessageSend
 }
 
 async function handle_u2f_sign(msg: any, sender: chrome.runtime.MessageSender) {
-    try {
-        msg.appId = await getU2fVerifiedAppId(msg.origin, msg.appId)
-    } catch(err) {
-        console.error(err);
-        return {errorCode: BAD_APPID};
-    }
+    let origin = getOriginFromUrl(sender.url);
 
     let c = await client;
+    //  unify both request formats into registeredKeys
     if (msg.signRequests && !msg.registeredKeys) {
         if (msg.signRequests.length == 0) {
             return {};
@@ -353,13 +357,14 @@ async function handle_u2f_sign(msg: any, sender: chrome.runtime.MessageSender) {
         }
         msg.registeredKeys = registeredKeys;
     }
+
     let matchingAppId;
     let keyHandle;
     let serverChallenge;
     {
         for (var i = 0; i < msg.registeredKeys.length; i++) {
             let keyHandleBytes = await from_base64_url_nopad(msg.registeredKeys[i].keyHandle);
-            let potentialAppId: string = msg.registeredKeys[i].appId || msg.appId;
+            let potentialAppId: string = msg.registeredKeys[i].appId || msg.appId || origin;
             let appId = await c.mapKeyHandleToMatchingAppId(keyHandleBytes, {appId: potentialAppId});
             if (appId) {
                 keyHandle = keyHandleBytes;
@@ -371,6 +376,13 @@ async function handle_u2f_sign(msg: any, sender: chrome.runtime.MessageSender) {
     }
     if (!keyHandle) {
         return {fallback: true};
+    }
+
+    try {
+        matchingAppId = await getU2fVerifiedAppId(origin, matchingAppId);
+    } catch(err) {
+        console.error(err);
+        return {errorCode: BAD_APPID};
     }
 
     let clientData = JSON.stringify({

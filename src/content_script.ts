@@ -33,7 +33,6 @@ window.addEventListener('message', (ev) => {
         return;
     }
 
-    msg.origin = ev.origin;
     if (forwardToExtensionTypes.indexOf(msg.type) > -1) {
         let w = <Window>ev.target;
         while (w.parent != w) {
