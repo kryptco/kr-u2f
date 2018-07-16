@@ -261,7 +261,7 @@ body {
 
     h2 {
         margin: auto;
-        margin-top: 2.5em;
+        margin-top: 1.8em;
         color: $c-bluegray;
         font-weight: 600;
         font-size: 1.4em
@@ -270,7 +270,7 @@ body {
     .grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        margin-top: 1.5em;
+        margin-top: 1em;
         margin-left: auto;
         margin-right: auto;
 
@@ -377,19 +377,35 @@ body {
         }
     }
 
-    .made-by {
+    .footer {
         position: absolute;
         width: 100%;
         bottom: 10px;
-        text-align: center;
-        color: $c-bluegray;
-        font-weight: 600;
-        font-size: 0.8em;
 
         @media (min-height: 650px) { 
             position: unset;
             margin-top: 50px;
         }
+
+    }
+
+    .version-label {
+        text-align: center;
+        font-weight: 400;
+        font-size: 0.8em;
+        color: rgba(109, 125, 146, 0.6);
+        padding-bottom: 0.5em;
+
+        @media (min-height: 650px) { 
+            margin-top: 50px;
+        }
+    }
+
+    .made-by {
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.8em;
+        color: $c-bluegray;
 
         a {
             color: $c-bluegray;
