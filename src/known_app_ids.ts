@@ -12,6 +12,7 @@ export function appIdToShortName(appId: string): string | undefined {
         "https://id.fedoraproject.org/u2f-origins.json": 'fd',
         "https://vault.bitwarden.com/app-id.json": 'vb',
         "https://bitbucket.org": 'b',
+        "https://twitter.com/account/login_verification/u2f_trusted_facets.json": 'tw',
     };
 
     if (mapping[appId]) {
