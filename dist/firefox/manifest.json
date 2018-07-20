@@ -1,0 +1,44 @@
+{
+  "manifest_version": 2,
+  "name": "Krypton Authenticator",
+  "version": "1.0.4",
+  "minimum_chrome_version": "36.0.1985.18",
+  "icons": { "128": "img/krypton_icon.png" },
+  "content_scripts": [
+    {
+      "all_frames": true,
+      "matches": ["https://*/*"],
+      "run_at": "document_start",
+      "js": ["js/content_script.js"],
+      "css": ["content_script.css"]
+    }
+  ],
+  "background": {
+    "persistent": false,
+    "scripts": [
+    "js/babel_polyfill.js",
+    "js/background.js"
+    ]
+  },
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "browser_action": {
+   "default_popup": "popup.html",
+   "default_icon": {
+    "128": "img/krypton_icon.png"
+   }
+  },
+  "permissions": [
+    "tabs",
+    "storage",
+    "https://*/*",
+    "http://*/*"
+  ],
+  "externally_connectable": {
+    "ids": [],
+    "accepts_tls_channel_id": true
+  },
+  "web_accessible_resources": [
+    "js/inject.js",
+    "img/*"
+  ]
+}

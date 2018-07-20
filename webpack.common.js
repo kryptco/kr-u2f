@@ -5,15 +5,20 @@ const webpack = require('webpack');
 
 module.exports = {
   entry: {
-    'babel_polyfill.js': 'babel-polyfill',
-    'popup.js': ['babel-polyfill', './src/popup.ts'],
-    'inject.js': './src/inject.ts',
-    'content_script.js': './src/content_script.ts',
-    'background.js': './src/background.ts',
+    'chromium/js/babel_polyfill.js': 'babel-polyfill',
+    'chromium/js/popup.js': ['babel-polyfill', './src/popup.ts'],
+    'chromium/js/inject.js': './src/inject_chromium.ts',
+    'chromium/js/content_script.js': './src/content_script_chromium.ts',
+    'chromium/js/background.js': './src/background.ts',
+
+    'firefox/js/babel_polyfill.js': 'babel-polyfill',
+    'firefox/js/popup.js': ['babel-polyfill', './src/popup.ts'],
+    'firefox/js/content_script.js': './src/content_script_firefox.ts',
+    'firefox/js/background.js': './src/background.ts',
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'js/[name]',
+    filename: '[name]',
     // chunkFilename: 'js/[name].[chunkhash:8].chunk.js',
     publicPath: './'
   },

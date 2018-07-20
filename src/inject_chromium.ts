@@ -1,4 +1,5 @@
 import { webauthnStringify, webauthnParse } from "./krjson";
+import { RequestTypes, ResponseTypes } from "./enums"
 
 function callbackOrFallbackTo(callback, fallback) {
     return function(r) {
@@ -47,14 +48,7 @@ const chrome = window['chrome'];
                                     console.debug("event from origin " + evt.origin + ", not " + window.location.origin);
                                     return;
                                 }
-                                let responseTypes = [
-                                    'u2f_get_api_version_response',
-                                    'u2f_register_response',
-                                    'u2f_sign_response',
-                                    'webauthn_register_response',
-                                    'webauthn_sign_response',
-                                ];
-                                if (responseTypes.indexOf(evt.data.type) >= 0) {
+                                if ((<any>Object).values(ResponseTypes).includes(evt.data.type)) {
                                     let requestId = evt.data.requestId;
                                     if (evt.data.responseData && evt.data.responseData.fallback) {
                                         if (requests[requestId]) {
@@ -85,16 +79,16 @@ const chrome = window['chrome'];
                     disconnect: function () {
                     },
                     postMessage: function (msg) {
-                        if (msg.type == 'u2f_get_api_version_request') {
+                        if (msg.type == RequestTypes.GET_API_VERSION) {
                             let response = {
-                                type: 'u2f_get_api_version_response',
+                                type: ResponseTypes.GET_API_VERSION,
                                 requestId: msg.requestId,
                                 responseData: {
                                     js_api_version: 1.1
                                 }
                             };
                             window.postMessage(response, window.location.origin);
-                        } else if (msg.type == 'u2f_sign_request' || msg.type == 'u2f_register_request' || msg.type == 'webauthn_sign_request') {
+                        } else if (msg.type == RequestTypes.SIGN_U2F || msg.type == RequestTypes.REGISTER_U2F || msg.type == RequestTypes.SIGN_WEBAUTHN) {
                             //  don't overwrite requestId set by page
                             msg.requestId = msg.requestId || ++requestCounter;
                             requests[msg.requestId] = msg;
@@ -141,7 +135,7 @@ const chrome = window['chrome'];
         try {
             let requestId = ++webauthnReqCounter;
             let registerRequest = {
-                type: 'webauthn_register_request',
+                type: RequestTypes.REGISTER_WEBAUTHN,
                 requestId,
                 options: webauthnStringify(options),
             };
@@ -168,7 +162,7 @@ const chrome = window['chrome'];
         });
 
         let signRequest = {
-            type: 'webauthn_sign_request',
+            type: RequestTypes.SIGN_WEBAUTHN,
             requestId,
             options: webauthnStringify(options),
         };
@@ -190,7 +184,7 @@ const chrome = window['chrome'];
 
     window.addEventListener('message', function (evt) {
         let msg = evt.data;
-        if (['u2f_register_response', 'u2f_sign_response', 'webauthn_register_response', 'webauthn_sign_response'].indexOf(msg.type) > -1) {
+        if ([ResponseTypes.REGISTER_U2F, ResponseTypes.SIGN_U2F, ResponseTypes.REGISTER_WEBAUTHN, ResponseTypes.SIGN_WEBAUTHN].indexOf(msg.type) > -1) {
             if (msg.requestId && webauthnCallbacks[msg.requestId]) {
                 webauthnCallbacks[msg.requestId](msg);
                 delete (webauthnCallbacks[msg.requestId]);

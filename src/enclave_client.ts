@@ -170,7 +170,7 @@ export default class EnclaveClient {
         });
 
         let msg = await stringify(r);
-        this.pairing.encryptAndSend(msg);
+        await this.pairing.encryptAndSend(msg);
 
         (async () => { await this.pollFor(30 * 1000) })();
         return promise;
