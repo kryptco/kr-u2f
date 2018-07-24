@@ -12,8 +12,9 @@ import { client, makeRegisterData, addPresenceAndCounter } from './u2f';
 
 import {getOriginFromUrl, getDomainFromOrigin} from './url';
 import { BAD_APPID, verifyU2fAppId, checkIsRegistrableDomainSuffix} from './origin-checker';
+import { browser, Browser } from './browser';
 
-chrome.runtime.onMessage.addListener(async (msg, sender) => {
+async function onRequest(msg, sender) {
     if (msg.type) {
         console.debug(msg);
         if (msg.type == RequestTypes.REGISTER_U2F) {
@@ -41,18 +42,16 @@ chrome.runtime.onMessage.addListener(async (msg, sender) => {
             return;
         }
     }
-    let m = await parse(Message, msg);
+    if (typeof(msg) == 'string') {
+        msg = await parse(Message, msg);
+    }
+    return onMessage(msg);
+}
+
+async function onMessage(m: Message) {
     let c = await client;
     if (m.request) {
         switch (m.request.ty) {
-            case RequestType.getPaired: {
-                if (sender.tab) {
-                    chrome.tabs.sendMessage(
-                        sender.tab.id,
-                        await stringify({response: {paired: c.pairing.isPaired()}}),
-                    );
-                }
-            }
             case RequestType.getState: {
                 sendFullStateToPopup(c);
                 break;
@@ -68,7 +67,17 @@ chrome.runtime.onMessage.addListener(async (msg, sender) => {
             }
         }
     }
-});
+}
+
+switch (browser()) {
+    case Browser.safari:
+        safari.application.addEventListener('message', (evt) => {
+            onRequest((<any>evt).message, evt.target);
+        });
+        break;
+    default:
+        chrome.runtime.onMessage.addListener(onRequest);
+}
 
 function getFetcher(sender: chrome.runtime.MessageSender) {
     return function fetch (url: string) : Promise<string> {
@@ -103,7 +112,7 @@ function getResponseSender(responseType: string, requestId: number, sender: chro
                 responseData: responseData,
             },
         };
-        sendIfTabActive(sender.tab.id, response);
+        sendIfTabActive(sender, response);
     }
 }
 
@@ -446,20 +455,24 @@ async function handle_u2f_sign(msg: any, sender: chrome.runtime.MessageSender) {
 
 function sendStates(c: EnclaveClient) {
     sendFullStateToPopup(c);
-    sendPairStatusToTabs(c);
 }
 
-function sendPairStatusToTabs(c: EnclaveClient) {
-    chrome.tabs.query({}, async tabs => {
-        for (var i = 0; i < tabs.length; i++) {
-            chrome.tabs.sendMessage(tabs[i].id, await stringify({ response: { paired: c.pairing.isPaired() } }));
-        }
-    });
+function sendToPopup(o: any) {
+    switch (browser()) {
+        case Browser.safari:
+            let sendFn = (<any>safari.extension.globalPage.contentWindow).krSendToPopup;
+            if (sendFn) {
+                sendFn(o);
+            }
+            break;
+        default:
+            chrome.runtime.sendMessage(stringify(o));
+    }
 }
 
 function sendFullStateToPopup(c: EnclaveClient) {
     let r = c.getState();
-    chrome.runtime.sendMessage(stringify(r));
+    sendToPopup(r);
 }
 
 function sendPending(s: string) {
@@ -473,39 +486,69 @@ async function sendMessageToActiveTab(m: Message) {
     sendToActiveTab(await stringify(m));
 }
 
-async function sendIfTabActive(tabId: number, o: Object) {
-    chrome.tabs.query({ active: true, currentWindow: true }, async function (tabs) {
-        if (tabs[0]) {
-            if (tabs[0].id == tabId) {
-                chrome.tabs.sendMessage(
-                    tabId,
-                    o,
-                );
-            } else {
-                console.log('sender tab not active');
-            }
-        } else {
-            console.log('no tab active');
-        }
-    });
+async function sendIfTabActive(sender: chrome.runtime.MessageSender | browser.runtime.MessageSender, o: any) {
+    switch (browser()) {
+        case Browser.safari:
+            (<any>sender).page.dispatchMessage(o.type, o);
+            return;
+        default:
+            chrome.tabs.query({ active: true, currentWindow: true }, async function (tabs) {
+                if (tabs[0]) {
+                    if (tabs[0].id == sender.tab.id) {
+                        chrome.tabs.sendMessage(
+                            sender.tab.id,
+                            o,
+                        );
+                    } else {
+                        console.log('sender tab not active');
+                    }
+                } else {
+                    console.log('no tab active');
+                }
+            });
+    }
 }
 
 async function sendToActiveTab(s: string) {
-    chrome.tabs.query({ active: true, currentWindow: true }, async function (tabs) {
-        chrome.tabs.sendMessage(
-            tabs[0].id,
-            s,
-        );
-    });
+    switch (browser()) {
+        case Browser.safari:
+            //  TODO: not yet implemented
+            return
+        default:
+            chrome.tabs.query({ active: true, currentWindow: true }, async function (tabs) {
+                chrome.tabs.sendMessage(
+                    tabs[0].id,
+                    s,
+                );
+            });
+    }
 }
 
 client.then(c => { c.onChange = sendStates.bind(null, c) });
 
-chrome.runtime.onInstalled.addListener(function (details) {
-    if (details.reason == "install") {
-        chrome.tabs.create({ url: "/popup.html" });
-    } else if (details.reason == "update") {
-        var thisVersion = chrome.runtime.getManifest().version;
-        console.log("Updated from " + details.previousVersion + " to " + thisVersion);
-    }
-});
+switch (browser()) {
+    case Browser.safari:
+        //  https://stackoverflow.com/questions/9868985/safari-extension-first-run-and-updates
+        var storedVersion = safari.extension.settings.version;
+        var currentVersion = safari.extension.displayVersion + '.' + safari.extension.bundleVersion;
+        if (typeof storedVersion === 'undefined') {
+            //  Install
+            safari.extension.settings.version = currentVersion
+            safari.extension.toolbarItems[0].showPopover();
+        } else if (currentVersion != storedVersion) {
+            //  Update
+            console.log('Extension update');
+            safari.extension.settings.version = currentVersion
+        }
+        break;
+    default:
+        chrome.runtime.onInstalled.addListener(function (details) {
+            if (details.reason == "install") {
+                chrome.tabs.create({ url: "/popup.html" });
+            } else if (details.reason == "update") {
+                var thisVersion = chrome.runtime.getManifest().version;
+                console.log("Updated from " + details.previousVersion + " to " + thisVersion);
+            }
+        });
+        break;
+}

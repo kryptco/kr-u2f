@@ -15,6 +15,12 @@ module.exports = {
     'firefox/js/popup.js': ['babel-polyfill', './src/popup.ts'],
     'firefox/js/content_script.js': './src/content_script_firefox.ts',
     'firefox/js/background.js': './src/background.ts',
+
+    'KryptonAuthenticator.safariextension/js/babel_polyfill.js': 'babel-polyfill',
+    'KryptonAuthenticator.safariextension/js/popup.js': ['babel-polyfill', './src/popup_safari.ts'],
+    'KryptonAuthenticator.safariextension/js/content_script.js': './src/content_script_safari.ts',
+    'KryptonAuthenticator.safariextension/js/background.js': './src/background.ts',
+    'KryptonAuthenticator.safariextension/js/inject.js': './src/inject_safari.ts',
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -28,22 +34,21 @@ module.exports = {
   module: {
     strictExportPresence: true,
     rules: [{
-      oneOf: [{
-          test: /\.(js|jsx|mjs)$/,
-          include: path.resolve(__dirname, 'src'),
-          loader: 'babel-loader',
-          options: {
-            compact: true,
-          },
-        },
-        {
-          test: /\.(ts|tsx)$/,
-          include: path.resolve(__dirname, 'src'),
-          loader: 'ts-loader',
-        },        
-      ],
-    }, 
-  ],
+      test: /\.(js|jsx|mjs)$/,
+      include: path.resolve(__dirname, 'src'),
+      loader: 'babel-loader',
+      options: {
+        compact: true,
+      },
+    }, {
+      test: /\.(ts|tsx)$/,
+      include: path.resolve(__dirname, 'src'),
+      loader: 'ts-loader',
+    }, {
+      test: /\.js$/,
+      include: /node_modules/,
+      loader: 'strip-sourcemap-loader',
+    }],
   },
   plugins: [
     new webpack.ProvidePlugin({

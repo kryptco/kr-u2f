@@ -24,6 +24,7 @@
     "postcss-loader": "^2.1.5",
     "sass": "^1.8.0",
     "sass-loader": "^7.0.1",
+    "strip-sourcemap-loader": "^0.0.1",
     "ts-loader": "^3.5.0",
     "typescript": "^2.8.3",
     "web-ext-types": "^2.1.0",

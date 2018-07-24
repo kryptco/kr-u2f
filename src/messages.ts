@@ -8,7 +8,6 @@ import { Type } from "class-transformer";
 export enum RequestType {
     unpair = 'unpair',
     getState = 'getState',
-    getPaired = 'getPaired',
     refreshPopup = 'refreshPopup',
 }
 

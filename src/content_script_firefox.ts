@@ -8,8 +8,6 @@ injectU2fInterface();
 
 $(document).ready(async () => {
     $("[role=button]:contains('Add Security Key')").first().addClass('kr-pulse');
-
-    chrome.runtime.sendMessage(await JSON.stringify({request: {ty: 'getPaired'}}));
 });
 
 let forwardToExtensionTypes = [RequestTypes.REGISTER_U2F, RequestTypes.SIGN_U2F, RequestTypes.REGISTER_WEBAUTHN, RequestTypes.SIGN_WEBAUTHN];

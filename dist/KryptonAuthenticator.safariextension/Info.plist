@@ -5,7 +5,7 @@
 	<key>Author</key>
 	<string>KryptCo, Inc.</string>
 	<key>Builder Version</key>
-	<string>14606.1.20.40.2</string>
+	<string>14606.1.30</string>
 	<key>CFBundleDisplayName</key>
 	<string>Krypton Authenticator</string>
 	<key>CFBundleIdentifier</key>
@@ -37,7 +37,7 @@
 				<key>Identifier</key>
 				<string>popup</string>
 				<key>Image</key>
-				<string>krypton_icon.png</string>
+				<string>img/krypton_icon.png</string>
 				<key>Include By Default</key>
 				<true/>
 				<key>Label</key>
