@@ -1,29 +1,22 @@
 import $ from 'jquery';
 import { getOriginFromUrl } from './url';
+import {inject} from './inject_u2f_chromium';
 
-function appendToDocument(script) {
-    return (document.body || document.head || document.documentElement).appendChild(script);
-}
+let u2fInject = document.createElement('script');
+u2fInject.type = 'text/javascript';
+//  inject as textContent to run script synchronously
+u2fInject.textContent = "("+inject.toString()+")();";
+document.documentElement.appendChild(u2fInject);
 
-let injectExtensionId = document.createElement('script');
-injectExtensionId.innerHTML = 'window.kryptonExtensionId = \'' + chrome.runtime.id + '\';';
-appendToDocument(injectExtensionId);
-let s = document.createElement('script');
-s.setAttribute('src', 'chrome-extension://' + chrome.runtime.id + '/js/inject.js');
-appendToDocument(s);
+//  inject webauthn as file since it depends on node Buffer
+let webauthnInject = document.createElement('script');
+webauthnInject.type = 'text/javascript';
+webauthnInject.src = 'chrome-extension://' + chrome.runtime.id + '/js/inject_webauthn.js';
+document.documentElement.appendChild(webauthnInject);
 
 $(document).ready(async () => {
     $("[role=button]:contains('Add Security Key')").first().addClass('kr-pulse');
-
-    chrome.runtime.sendMessage(await JSON.stringify({request: {ty: 'getPaired'}}));
 });
-
-function injectPairedStatus(paired: boolean) {
-    let s = document.createElement('script');
-    s.innerHTML = 'if (window.onKrPairStatus) window.onKrPairStatus(' + JSON.stringify(paired) + ');';
-    let node = appendToDocument(s);
-    node.remove();
-}
 
 let forwardToExtensionTypes = ['u2f_register_request', 'u2f_sign_request', 'webauthn_sign_request', 'webauthn_register_request'];
 let forwardToPageTypes = ['u2f_register_response', 'u2f_sign_response', 'webauthn_register_response', 'webauthn_sign_response'];
@@ -54,10 +47,5 @@ chrome.runtime.onMessage.addListener(async (msg, sender) => {
         msg.data.type = msg.type;
         window.postMessage(msg.data, window.location.origin);
         return;
-    }
-
-    let m = JSON.parse(msg);
-    if (m.response) {
-        injectPairedStatus(m.response.paired || false);
     }
 });

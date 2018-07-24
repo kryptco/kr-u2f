@@ -7,7 +7,7 @@ module.exports = {
   entry: {
     'chromium/js/babel_polyfill.js': 'babel-polyfill',
     'chromium/js/popup.js': ['babel-polyfill', './src/popup.ts'],
-    'chromium/js/inject.js': './src/inject_chromium.ts',
+    'chromium/js/inject_webauthn.js': './src/inject_webauthn_chromium.ts',
     'chromium/js/content_script.js': './src/content_script_chromium.ts',
     'chromium/js/background.js': './src/background.ts',
 
