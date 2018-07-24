@@ -419,7 +419,6 @@ async function handle_u2f_sign(msg: any, sender: chrome.runtime.MessageSender) {
         keyHandle: await to_base64_url_nopad(keyHandle),
         signatureData,
         clientData: await to_base64_url_nopad(clientData),
-        version: "U2F_V2",
     };
     return authenticatedResponseData;
 }
