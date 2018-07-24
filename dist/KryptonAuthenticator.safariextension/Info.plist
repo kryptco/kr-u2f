@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Author</key>
+	<string>KryptCo, Inc.</string>
+	<key>Builder Version</key>
+	<string>14606.1.20.40.2</string>
+	<key>CFBundleDisplayName</key>
+	<string>Krypton Authenticator</string>
+	<key>CFBundleIdentifier</key>
+	<string>co.krypt.krypton.u2f</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>Chrome</key>
+	<dict>
+		<key>Global Page</key>
+		<string>background.html</string>
+		<key>Popovers</key>
+		<array>
+			<dict>
+				<key>Filename</key>
+				<string>popup.html</string>
+				<key>Identifier</key>
+				<string>Krypton U2F</string>
+				<key>Width</key>
+				<integer>500</integer>
+			</dict>
+		</array>
+		<key>Toolbar Items</key>
+		<array>
+			<dict>
+				<key>Identifier</key>
+				<string>popup</string>
+				<key>Image</key>
+				<string>krypton_icon.png</string>
+				<key>Include By Default</key>
+				<true/>
+				<key>Label</key>
+				<string>Krypton</string>
+				<key>Popover</key>
+				<string>Krypton U2F</string>
+			</dict>
+		</array>
+	</dict>
+	<key>Companion Bundle Identifier</key>
+	<array>
+		<string>co.krypt</string>
+	</array>
+	<key>Content</key>
+	<dict>
+		<key>Scripts</key>
+		<dict>
+			<key>Start</key>
+			<array>
+				<string>js/content_script.js</string>
+			</array>
+		</dict>
+	</dict>
+	<key>DeveloperIdentifier</key>
+	<string>C246BC89CJ</string>
+	<key>ExtensionInfoDictionaryVersion</key>
+	<string>1.0</string>
+	<key>Permissions</key>
+	<dict>
+		<key>Website Access</key>
+		<dict>
+			<key>Include Secure Pages</key>
+			<true/>
+			<key>Level</key>
+			<string>All</string>
+		</dict>
+	</dict>
+	<key>Website</key>
+	<string>https://krypt.co</string>
+</dict>
+</plist>
