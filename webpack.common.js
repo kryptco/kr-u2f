@@ -51,5 +51,4 @@ module.exports = {
       jQuery: "jquery"
     }),
   ],
-  devtool: 'inline-source-map',
 }

@@ -4,6 +4,11 @@
   "version": "1.0.4",
   "minimum_chrome_version": "36.0.1985.18",
   "icons": { "128": "img/krypton_icon.png" },
+  "applications": {
+    "gecko": {
+      "id": "krypton@krypt.co"
+    }
+  },
   "content_scripts": [
     {
       "all_frames": true,
@@ -33,10 +38,6 @@
     "https://*/*",
     "http://*/*"
   ],
-  "externally_connectable": {
-    "ids": [],
-    "accepts_tls_channel_id": true
-  },
   "web_accessible_resources": [
     "js/inject.js",
     "img/*"

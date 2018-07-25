@@ -23,8 +23,12 @@ watch: build-sass watch-sass
 build: build-sass
 	npm run build
 
-zip:
-	rm -f u2f-chrome.zip; cd dist/chromium && zip ../../u2f-chrome.zip -r *
+zip-chromium:
+	rm -f u2f-chromium.zip; cd dist/chromium && zip ../../u2f-chromium.zip -r *
 
+zip-firefox:
+	rm -f u2f-firefox.zip; cd dist/firefox && zip ../../u2f-firefox.zip -r *
+
+zip: zip-chromium zip-firefox
 
 build-dist: build zip

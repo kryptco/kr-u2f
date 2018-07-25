@@ -3,7 +3,7 @@ dist/firefox/js
 node_modules
 target
 KryptonU2F.safariextension/js
-u2f-chrome.zip
+*.zip
 dist/chromium/*.css
 dist/firefox/*.css
 dist/chromium/*.css.map
