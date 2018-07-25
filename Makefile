@@ -31,4 +31,8 @@ zip-firefox:
 
 zip: zip-chromium zip-firefox
 
+zip-code:
+	zip code.zip `git ls-tree -r HEAD --name-only`
+
+
 build-dist: build zip
