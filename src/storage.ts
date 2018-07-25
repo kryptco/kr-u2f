@@ -66,7 +66,9 @@ async function init() {
                 return browser.storage.local.get(item).then(items => items[item]).then(v => <string> v);
             }
             setImpl = function (k: string, v: string) {
-                return browser.storage.local.set({k: v});
+                var obj = {};
+                obj[k] = v;
+                return browser.storage.local.set(obj);
             }
             break;
         }

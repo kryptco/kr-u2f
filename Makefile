@@ -29,10 +29,11 @@ zip-chromium:
 zip-firefox:
 	rm -f u2f-firefox.zip; cd dist/firefox && zip ../../u2f-firefox.zip -r *
 
-zip: zip-chromium zip-firefox
-
 zip-code:
-	zip code.zip `git ls-tree -r HEAD --name-only`
+	rm -rf code.zip; zip code.zip `git ls-tree -r HEAD --name-only`
+
+zip: zip-chromium zip-firefox zip-code
+
 
 
 build-dist: build zip
