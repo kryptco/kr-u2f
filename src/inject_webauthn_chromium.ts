@@ -28,6 +28,7 @@ import { webauthnStringify, webauthnParse } from "./krjson";
             });
 
             let credential = webauthnParse(webauthnResponse.responseData.credential);
+            credential.__proto__ = window['PublicKeyCredential'].prototype;
             return credential;
         } catch (e) {
             return window['nativeCredentials'].create.bind(navigator.credentials)(options);
@@ -54,6 +55,7 @@ import { webauthnStringify, webauthnParse } from "./krjson";
 
             let credential = webauthnParse(webauthnResponse.responseData.credential);
             //TODO: add getClientExtensionResults() internal slot
+            credential.__proto__ = window['PublicKeyCredential'].prototype;
             return credential;
         } catch {
             return window['nativeCredentials'].get.bind(navigator.credentials)(options);

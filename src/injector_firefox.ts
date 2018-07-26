@@ -128,6 +128,7 @@ export function injectU2fInterface() {
                 console.debug(r)
                 if (r.responseData.fallback) { throw 'fallback to native'; }
                 var webauthnResponse = cloneInto(webauthnParse(r.responseData.credential), window, {cloneFunctions: true})
+                webauthnResponse.__proto__ = pageWindow['PublicKeyCredential'].prototype;
                 return webauthnResponse;
             }, window))
                 .catch(exportFunction((e) => {
@@ -164,6 +165,7 @@ export function injectU2fInterface() {
             return cb.then(exportFunction(r => {
                 if (r.responseData.fallback) { throw 'fallback to native'; }
                 var webauthnResponse = cloneInto(webauthnParse(r.responseData.credential), window, {cloneFunctions: true})
+                webauthnResponse.__proto__ = pageWindow['PublicKeyCredential'].prototype;
                 return webauthnResponse
             }, window));
         } catch (e) {
