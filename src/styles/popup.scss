@@ -13,8 +13,12 @@ $c-revoke: rgb(245, 105, 105);
 $c-dark: #004022;
 $c-yellow: rgb(245, 105, 105);
 
-html {
+@-moz-document url-prefix() {    
+    html {  
+        font-size: 12px;
+    }
 }
+
 body {
     --blue-bg: #E5EBF1;
     --blue-fg: #6D7D92;
