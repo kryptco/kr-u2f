@@ -21,15 +21,13 @@ export function parse<T>(t: ClassType<T>, j: string, ) {
 export function webauthnStringify(o: any) {
     return JSON.stringify(o, (k, v) => {
         if (v) {
+            if (v.constructor.name == "ArrayBuffer") {
+                // Because Buffer.from(ArrayBuffer) was not working on firefox
+                v = new Uint8Array(v);
+            }
             if (v.constructor.name == "Uint8Array") {
                 return {
                     kr_ser_ty: 'Uint8Array',
-                    data: Buffer.from(v).toString('base64'),
-                };
-            }
-            if (v.constructor.name == "ArrayBuffer") {
-                return {
-                    kr_ser_ty: 'ArrayBuffer',
                     data: Buffer.from(v).toString('base64'),
                 };
             }
