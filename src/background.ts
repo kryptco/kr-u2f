@@ -162,7 +162,7 @@ async function handle_webauthn_register(msg: any, sender: chrome.runtime.Message
         attestationObject = CBOR.encode({
             fmt: 'fido-u2f',
             attStmt: {
-                sig: new Buffer(u2fRegisterResponse.signature.slice(5).buffer),
+                sig: new Buffer(u2fRegisterResponse.signature.buffer),
                 x5c: [new Buffer(u2fRegisterResponse.attestation_certificate.buffer)],
             },
             authData: new Buffer(authenticatorData.buffer),
