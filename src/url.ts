@@ -23,5 +23,6 @@ export function getOriginFromUrl(url: string) : string | null {
 }
 
 export function getDomainFromOrigin(origin: string) : string {
-    return origin.replace(new RegExp('^https?://'), '');
+    return origin.replace(new RegExp('^https?://'), '')
+        .replace(new RegExp(':[0-9]+$'), '');
 }
