@@ -1,6 +1,9 @@
 import * as CBOR from 'cbor';
 import { crypto_hash_sha256, from_base64_url_nopad } from "./crypto";
 import { counterToBytes } from './u2f';
+import { KRYPTON_U2F_MAGIC } from './protocol';
+
+let KRYPTON_AAGUID = KRYPTON_U2F_MAGIC.slice(0, 16);
 
 export async function createAuthenticatorDataWithoutAttestation(rpId: string, counter: number) : Promise<Uint8Array> {
     let rpIdHash = await crypto_hash_sha256(rpId);
@@ -16,7 +19,7 @@ export async function createAuthenticatorDataWithoutAttestation(rpId: string, co
 export async function createAuthenticatorDataWithAttestation(rpId: string, counter: number, credId: Uint8Array, publicKey: Uint8Array) : Promise<Uint8Array> {
     let withoutAttestation = await createAuthenticatorDataWithoutAttestation(rpId, counter);
 
-    let aaguid = new Uint8Array(16);
+    let aaguid = KRYPTON_AAGUID;
 
     let credIdLen = new Uint8Array(2);
     credIdLen[0] = (credId.length >> 8) & 0xff;
