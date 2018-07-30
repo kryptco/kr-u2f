@@ -128,7 +128,6 @@ export function injectU2fInterface() {
                 console.debug(r)
                 if (r.responseData.fallback) { throw 'fallback to native'; }
                 var webauthnResponse = cloneInto(webauthnParse(r.responseData.credential), window, {cloneFunctions: true})
-                webauthnResponse.__proto__ = pageWindow['PublicKeyCredential'].prototype;
                 return webauthnResponse;
             }, window))
                 .catch(exportFunction((e) => {
@@ -165,7 +164,6 @@ export function injectU2fInterface() {
             return cb.then(exportFunction(r => {
                 if (r.responseData.fallback) { throw 'fallback to native'; }
                 var webauthnResponse = cloneInto(webauthnParse(r.responseData.credential), window, {cloneFunctions: true})
-                webauthnResponse.__proto__ = pageWindow['PublicKeyCredential'].prototype;
                 return webauthnResponse
             }, window));
         } catch (e) {
@@ -174,12 +172,31 @@ export function injectU2fInterface() {
         }
     }
 
+    function wrapWebauthn() {
+        function createWrapper(options: CredentialCreationOptions) {
+            return navigator['credentials']['create_'](options)
+                .then((credential) => {
+                    Object.setPrototypeOf(credential, window['PublicKeyCredential']);
+                    return credential;
+                });
+        }
+        function getWrapper(options: CredentialRequestOptions) {
+            return navigator['credentials']['get_'](options)
+                .then((credential) => {
+                    Object.setPrototypeOf(credential, window['PublicKeyCredential']);
+                    return credential;
+                });
+        }
+        navigator['credentials'].create = createWrapper;
+        navigator['credentials'].get = getWrapper;
+    };
+
     var nativeWebauthn = navigator['wrappedJSObject'].credentials;
     var credentials = cloneInto(
         {
             callbacks: {},
-            create: createWebauthn,
-            get: getWebauthn,
+            create_: createWebauthn,
+            get_: getWebauthn,
             reqCounter: 0,
         },
         window,
@@ -192,6 +209,7 @@ export function injectU2fInterface() {
         value: credentials,
         writable: false,
     });
+    window['eval']("(" + wrapWebauthn.toString() + ")()");
     Object.defineProperty(navigator['wrappedJSObject'].credentials, 'native', {
         value: nativeWebauthn,
     });
