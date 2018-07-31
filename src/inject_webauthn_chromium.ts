@@ -4,38 +4,31 @@ import { webauthnStringify, webauthnParse } from "./krjson";
 
     let webauthnCallbacks = {};
     let webauthnReqCounter = 0;
-    window['nativeCredentials'] = {
+    let nativeCredentials = {
         get: navigator.credentials.get,
         create: navigator.credentials.create,
     };
-    window['krCredentials'] = {};
-    window['krCredentials'].create = async function (options: CredentialCreationOptions): Promise<Credential | null> {
-        try {
-            let requestId = ++webauthnReqCounter;
-            let registerRequest = {
-                type: 'webauthn_register_request',
-                requestId,
-                options: webauthnStringify(options),
-            };
+    let krCredentials : any = {};
+    krCredentials.create = async function (options: CredentialCreationOptions): Promise<Credential | null> {
+        let requestId = ++webauthnReqCounter;
+        let registerRequest = {
+            type: 'webauthn_register_request',
+            requestId,
+            options: webauthnStringify(options),
+        };
 
-            let cb: Promise<any> = new Promise((res, rej) => {
-                webauthnCallbacks[requestId] = res;
-            });
-            window.postMessage(registerRequest, window.location.origin);
-            let webauthnResponse = await cb.then(r => {
-                if (r.fallback) { throw 'fallback to native'; }
-                return r;
-            });
+        let cb: Promise<any> = new Promise((res, rej) => {
+            webauthnCallbacks[requestId] = res;
+        });
+        window.postMessage(registerRequest, window.location.origin);
+        let webauthnResponse = await cb;
 
-            let credential = webauthnParse(webauthnResponse.responseData.credential);
-            credential.getClientExtensionResults = function() { return {}; };
-            credential.__proto__ = window['PublicKeyCredential'].prototype;
-            return credential;
-        } catch (e) {
-            return window['nativeCredentials'].create.bind(navigator.credentials)(options);
-        }
+        let credential = webauthnParse(webauthnResponse.responseData.credential);
+        credential.getClientExtensionResults = function () { return {}; };
+        credential.__proto__ = window['PublicKeyCredential'].prototype;
+        return credential;
     }
-    window['krCredentials'].get = async function (options?: CredentialRequestOptions): Promise<Credential | null | any> {
+    krCredentials.get = async function (options?: CredentialRequestOptions): Promise<Credential | null | any> {
         let requestId = ++webauthnReqCounter;
         let cb = new Promise<any>((res, rej) => {
             webauthnCallbacks[requestId] = res;
@@ -48,22 +41,36 @@ import { webauthnStringify, webauthnParse } from "./krjson";
         };
         window.postMessage(signRequest, window.location.origin);
 
-        try {
-            let webauthnResponse = await cb.then(r => {
-                if (r.fallback) { throw 'fallback to native'; }
-                return r;
-            });
+        let webauthnResponse = await cb;
 
-            let credential = webauthnParse(webauthnResponse.responseData.credential);
-            credential.getClientExtensionResults = function() { return {}; };
-            credential.__proto__ = window['PublicKeyCredential'].prototype;
-            return credential;
-        } catch {
-            return window['nativeCredentials'].get.bind(navigator.credentials)(options);
-        }
+        let credential = webauthnParse(webauthnResponse.responseData.credential);
+        credential.getClientExtensionResults = function () { return {}; };
+        credential.__proto__ = window['PublicKeyCredential'].prototype;
+        return credential;
     }
 
-    Object.assign(navigator.credentials, window['krCredentials']);
+    let hybridCredentials = {
+        create: async function (options: CredentialCreationOptions): Promise<Credential | null> {
+            let credentialBackends = [
+                krCredentials,
+            ];
+            if (nativeCredentials.create) {
+                credentialBackends.push(nativeCredentials);
+            }
+            return Promise.race(credentialBackends.map(b => b.create.bind(navigator.credentials)(options)));
+        },
+        get: async function(options?: CredentialRequestOptions): Promise<Credential | null | any> {
+            let credentialBackends = [
+                krCredentials,
+            ];
+            if (nativeCredentials.get) {
+                credentialBackends.push(nativeCredentials);
+            }
+            return Promise.race(credentialBackends.map(b => b.get.bind(navigator.credentials)(options)));
+        },
+    };
+
+    Object.assign(navigator.credentials, hybridCredentials);
 
     window.addEventListener('message', function (evt) {
         let msg = evt.data;

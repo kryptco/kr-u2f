@@ -19,25 +19,25 @@ chrome.runtime.onMessage.addListener(async (msg, sender) => {
         if (msg.type == RequestTypes.REGISTER_U2F) {
             var sendResponse = getResponseSender(ResponseTypes.REGISTER_U2F, msg.requestId, sender);
             handle_u2f_register(msg, sender).then(sendResponse)
-                                            .catch((e) => {console.error(e) ; sendResponse({fallback: true})})
+                                            .catch((e) => { console.error(e); sendResponse({ fallback: true }) });
             return;
         }
         else if (msg.type == RequestTypes.REGISTER_WEBAUTHN) {
             var sendResponse = getResponseSender(ResponseTypes.REGISTER_WEBAUTHN, msg.requestId, sender);
             handle_webauthn_register(msg, sender).then(sendResponse)
-                                                 .catch((e) => {console.error(e) ; sendResponse({fallback: true})})
+                                                 .catch(console.error);
             return;
         }
         else if (msg.type == RequestTypes.SIGN_U2F) {
             var sendResponse = getResponseSender(ResponseTypes.SIGN_U2F, msg.requestId, sender);
             handle_u2f_sign(msg, sender).then(sendResponse)
-                                        .catch((e) => {console.error(e) ; sendResponse({fallback: true})})
+                                        .catch((e) => { console.error(e); sendResponse({ fallback: true }) });
             return;
         }
         else if (msg.type == RequestTypes.SIGN_WEBAUTHN) {
             var sendResponse = getResponseSender(ResponseTypes.SIGN_WEBAUTHN, msg.requestId, sender);
             handle_webauthn_sign(msg, sender).then(sendResponse)
-                                             .catch((e) => {console.error(e) ; sendResponse({fallback: true})})
+                                            .catch(console.error);
             return;
         }
     }
