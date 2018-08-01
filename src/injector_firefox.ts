@@ -176,14 +176,14 @@ export function injectU2fInterface() {
         function createWrapper(options: CredentialCreationOptions) {
             return navigator['credentials']['create_'](options)
                 .then((credential) => {
-                    Object.setPrototypeOf(credential, window['PublicKeyCredential']);
+                    Object.setPrototypeOf(credential, window['PublicKeyCredential'].prototype);
                     return credential;
                 });
         }
         function getWrapper(options: CredentialRequestOptions) {
             return navigator['credentials']['get_'](options)
                 .then((credential) => {
-                    Object.setPrototypeOf(credential, window['PublicKeyCredential']);
+                    Object.setPrototypeOf(credential, window['PublicKeyCredential'].prototype);
                     return credential;
                 });
         }
