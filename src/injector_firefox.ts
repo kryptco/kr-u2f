@@ -125,7 +125,6 @@ export function injectU2fInterface() {
             }, window));
             window.postMessage(registerRequest, window.location.origin);
             return cb.then(exportFunction(r => {
-                console.debug(r)
                 if (r.responseData.fallback) { throw 'fallback to native'; }
                 var webauthnResponse = cloneInto(webauthnParse(r.responseData.credential), window, {cloneFunctions: true})
                 return webauthnResponse;
@@ -195,7 +194,9 @@ export function injectU2fInterface() {
     var credentials = cloneInto(
         {
             callbacks: {},
+            create: createWebauthn,
             create_: createWebauthn,
+            get: getWebauthn,
             get_: getWebauthn,
             reqCounter: 0,
         },
@@ -209,8 +210,13 @@ export function injectU2fInterface() {
         value: credentials,
         writable: false,
     });
-    window['eval']("(" + wrapWebauthn.toString() + ")()");
     Object.defineProperty(navigator['wrappedJSObject'].credentials, 'native', {
         value: nativeWebauthn,
     });
+    try {
+        window['eval']("(" + wrapWebauthn.toString() + ")()");
+    }
+    catch(e) {
+        console.error('wrap failed with error: ' + e);
+    }
 }
