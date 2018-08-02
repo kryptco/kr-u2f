@@ -126,19 +126,14 @@ export function injectU2fInterface() {
                 }, window));
                 window.postMessage(registerRequest, window.location.origin);
                 return cb.then(exportFunction(r => {
-                    if (r.responseData.fallback) { throw 'fallback to native'; }
-                    var webauthnResponse = cloneInto(webauthnParse(r.responseData.credential), window, { cloneFunctions: true })
+                    var webauthnResponse = cloneInto(webauthnParse(r.responseData.credential), window, { cloneFunctions: true });
                     return webauthnResponse;
-                }, window))
-                    .catch(exportFunction((e) => {
-                        console.debug(e);
-                        return navigator['wrappedJSObject'].credentials.native.create(options);
-                    }, window));
+                }, window));
             } catch (e) {
                 console.debug(e);
-                return navigator['wrappedJSObject'].credentials.native.create(options);
+                //  never resolve
+                return new pageWindow.Promise(exportFunction((res, rej) => {}, window));
             }
-
         },
 
         get: function (options?: CredentialRequestOptions): Promise<Credential | null | any> {
@@ -163,13 +158,13 @@ export function injectU2fInterface() {
                 }, window));
                 window.postMessage(signRequest, window.location.origin);
                 return cb.then(exportFunction(r => {
-                    if (r.responseData.fallback) { throw 'fallback to native'; }
                     var webauthnResponse = cloneInto(webauthnParse(r.responseData.credential), window, { cloneFunctions: true })
                     return webauthnResponse
                 }, window));
             } catch (e) {
                 console.debug(e);
-                return navigator['wrappedJSObject'].credentials.native.get(options);
+                //  never resolve
+                return new pageWindow.Promise(exportFunction((res, rej) => {}, window));
             }
         },
     };
