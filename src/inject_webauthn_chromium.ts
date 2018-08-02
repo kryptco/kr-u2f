@@ -49,6 +49,8 @@ import { webauthnStringify, webauthnParse } from "./krjson";
         return credential;
     }
 
+    //  TODO: abort other backends when one finishes using the AbortController API
+    //  https://dom.spec.whatwg.org/#aborting-ongoing-activities
     let hybridCredentials = {
         create: async function (options: CredentialCreationOptions): Promise<Credential | null> {
             let credentialBackends = [
