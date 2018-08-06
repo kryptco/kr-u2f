@@ -183,24 +183,11 @@ import { webauthnStringify, webauthnParse } from "./krjson";
         }
     }
 
-    function wrapWebauthn() {
-        function createWrapper(options: CredentialCreationOptions) {
-            return navigator['credentials']['create_'](options);
-        }
-        function getWrapper(options: CredentialRequestOptions) {
-            return navigator['credentials']['get_'](options);
-        }
-        navigator['credentials'].create = createWrapper;
-        navigator['credentials'].get = getWrapper;
-    };
-
     var nativeWebauthn = navigator.credentials;
     var credentials = {
         callbacks: {},
         create: hybridCredentials.create,
-        create_: hybridCredentials.create,
         get: hybridCredentials.get,
-        get_: hybridCredentials.get,
         reqCounter: 0,
     };
     Object.defineProperty(navigator, 'credentials', {
@@ -210,10 +197,4 @@ import { webauthnStringify, webauthnParse } from "./krjson";
     Object.defineProperty(navigator.credentials, 'native', {
         value: nativeWebauthn,
     });
-    try {
-        window['eval']("(" + wrapWebauthn.toString() + ")()");
-    }
-    catch (e) {
-        console.log('wrap failed with error: ' + e);
-    }
 })();
