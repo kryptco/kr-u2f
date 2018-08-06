@@ -74,6 +74,7 @@ switch (browser()) {
         safari.application.addEventListener('message', (evt) => {
             onRequest((<any>evt).message, evt.target);
         });
+        (<any>safari.extension.globalPage.contentWindow).krRequestGlobalPage = onRequest;
         break;
     default:
         chrome.runtime.onMessage.addListener(onRequest);
