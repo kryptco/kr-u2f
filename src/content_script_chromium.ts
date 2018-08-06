@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import { getOriginFromUrl } from './url';
 import {inject} from './inject_u2f_chromium';
+import { fetchAppIdUrl } from './origin-checker';
 
 let u2fInject = document.createElement('script');
 u2fInject.type = 'text/javascript';
@@ -42,10 +43,14 @@ window.addEventListener('message', (ev) => {
 
 });
 
-chrome.runtime.onMessage.addListener(async (msg, sender) => {
+chrome.runtime.onMessage.addListener( (msg, sender, sendResponse) => {
     if (forwardToPageTypes.indexOf(msg.type) > -1) {
         msg.data.type = msg.type;
         window.postMessage(msg.data, window.location.origin);
         return;
+    }
+    else if (msg.type == "url_fetch") {
+        fetchAppIdUrl(msg.url).then(sendResponse);
+        return true;
     }
 });

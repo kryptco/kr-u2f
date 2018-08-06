@@ -43,7 +43,7 @@ chrome.runtime.onMessage.addListener(async (msg, sender) => {
     }
     let m = await parse(Message, msg);
     let c = await client;
-    if (m.request) {23
+    if (m.request) {
         switch (m.request.ty) {
             case RequestType.getPaired: {
                 if (sender.tab) {
@@ -69,6 +69,24 @@ chrome.runtime.onMessage.addListener(async (msg, sender) => {
         }
     }
 });
+
+function getFetcher(sender: chrome.runtime.MessageSender) {
+    return function fetch (url: string) : Promise<string> {
+        return new Promise(function(resolve, reject) {
+            var msg = {
+                type: "url_fetch",
+                url: url
+            }
+            chrome.tabs.sendMessage(sender.tab.id, msg, (response) => {
+                if (response == null) {
+                    reject(chrome.runtime.lastError);
+                } else {
+                    resolve(String(response));
+                }
+            });
+        })
+    }
+}
 
 function getResponseSender(responseType: string, requestId: number, sender: chrome.runtime.MessageSender | browser.runtime.MessageSender) {
     var responseSent = false;
@@ -186,13 +204,14 @@ async function handle_webauthn_register(msg: any, sender: chrome.runtime.Message
 }
 
 async function handle_u2f_register(msg: any, sender: chrome.runtime.MessageSender | browser.runtime.MessageSender) {
+    let fetcher = getFetcher(sender);
     let origin = getOriginFromUrl(sender.url);
     let appId = msg.appId
         || ((msg.registerRequests && msg.registerRequests.length > 0) ? msg.registerRequests[0].appId : null)
         || origin;
 
     try {
-        await verifyU2fAppId(origin, appId);
+        await verifyU2fAppId(origin, appId, fetcher);
     } catch (err) {
         console.error(err);
         return {errorCode: BAD_APPID};
@@ -262,6 +281,7 @@ async function handle_u2f_register(msg: any, sender: chrome.runtime.MessageSende
 
 async function handle_webauthn_sign(msg: any, sender: chrome.runtime.MessageSender) {
     let c = await client;
+    let fetcher = getFetcher(sender);
 
     let pkOptions = webauthnParse(msg.options).publicKey;
 
@@ -273,7 +293,7 @@ async function handle_webauthn_sign(msg: any, sender: chrome.runtime.MessageSend
         let appId: string;
         if (pkOptions.extensions && pkOptions.extensions.appid) {
             try {
-                await verifyU2fAppId(origin, pkOptions.extensions.appid);
+                await verifyU2fAppId(origin, pkOptions.extensions.appid, fetcher);
                 appId = pkOptions.extensions.appid
             } catch (err) {
                 console.error(err);
@@ -345,6 +365,7 @@ async function handle_webauthn_sign(msg: any, sender: chrome.runtime.MessageSend
 
 async function handle_u2f_sign(msg: any, sender: chrome.runtime.MessageSender) {
     let origin = getOriginFromUrl(sender.url);
+    let fetcher = getFetcher(sender);
 
     let c = await client;
     //  unify both request formats into registeredKeys
@@ -385,7 +406,7 @@ async function handle_u2f_sign(msg: any, sender: chrome.runtime.MessageSender) {
     }
 
     try {
-        await verifyU2fAppId(origin, matchingAppId);
+        await verifyU2fAppId(origin, matchingAppId, fetcher);
     } catch(err) {
         console.error(err);
         return {errorCode: BAD_APPID};

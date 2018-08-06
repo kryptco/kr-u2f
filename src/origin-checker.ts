@@ -66,7 +66,7 @@ export function checkIsRegistrableDomainSuffix(origin : string, hostSuffixString
  * Retrieve the contents of the given appId
  * @param appId the appId to GET
  */
-function fetchAppIdUrl(appId: string) : Promise<string> {
+export function fetchAppIdUrl(appId: string) : Promise<string> {
     return new Promise(function(resolve,reject) {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', appId, true);
@@ -170,7 +170,7 @@ function getOriginsFromJson(text : string) : Array<string> {
 /**
  * FIDO AppId (v1.2) 3.1.2.10-13
  */
-async function getTrustedFacetsFromAppId(appId: string, remainingRetryAttempts: int) : Promise<Array<string>> {
+async function getTrustedFacetsFromAppId(appId: string, remainingRetryAttempts: int, fetcher) : Promise<Array<string>> {
     // Sanity/safety checks
     {
         if(remainingRetryAttempts <= 0) {
@@ -192,7 +192,7 @@ async function getTrustedFacetsFromAppId(appId: string, remainingRetryAttempts: 
     }
     // Fetch TrustedFacetsList
     {
-        var text = fetchAppIdUrl(appId);
+        var text = fetcher(appId);
 
         var facets = await text.then(getOriginsFromJson, async function(rc_) {
             var rc = (rc_);
@@ -200,7 +200,7 @@ async function getTrustedFacetsFromAppId(appId: string, remainingRetryAttempts: 
             if (!(rc >= 400 && rc < 500)) {
               // Retry
               await new Promise(resolve => setTimeout(resolve, 1000));
-              return getTrustedFacetsFromAppId(appId, remainingRetryAttempts - 1);
+              return getTrustedFacetsFromAppId(appId, remainingRetryAttempts - 1, fetcher);
             }
             return [];
         });
@@ -211,7 +211,12 @@ async function getTrustedFacetsFromAppId(appId: string, remainingRetryAttempts: 
     }
 }
 
-export async function verifyU2fAppId(origin: string, appId: string) : Promise<void> {
+/**
+ * Resolve or reject based on whether the given origin and appId are valid
+ * @param origin the origin of the request
+ * @param appId the URL to the Trusted Facets list
+ */
+export async function verifyU2fAppId(origin: string, appId: string, fetcher) : Promise<void> {
     if(origin)
         origin = origin.toLowerCase();
     if(appId)
@@ -231,7 +236,7 @@ export async function verifyU2fAppId(origin: string, appId: string) : Promise<vo
         return Promise.reject('origin cannot claim given appId ' + appId);
     }
 
-    var trustedFacets = await getTrustedFacetsFromAppId(appId, 5);
+    var trustedFacets = await getTrustedFacetsFromAppId(appId, 5, fetcher);
 
     if(trustedFacets.indexOf(origin) == -1) {
         //FIDO AppId & Facet (v1.2) 3.1.2.16
