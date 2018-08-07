@@ -14,7 +14,6 @@ import {createAuthenticatorDataWithAttestation, createAuthenticatorDataWithoutAt
 
 async function onRequest(msg, sender) {
     if (msg.type) {
-        console.debug(msg);
         if (msg.type === RequestTypes.REGISTER_U2F) {
             const sendResponse = getResponseSender(ResponseTypes.REGISTER_U2F, msg.requestId, sender);
             handle_u2f_register(msg, sender).then(sendResponse)
@@ -543,7 +542,7 @@ switch (browser()) {
             safari.extension.toolbarItems[0].showPopover();
         } else if (currentVersion !== storedVersion) {
             //  Update
-            console.log('Extension update');
+            console.info('Extension update');
             safari.extension.settings.version = currentVersion;
         }
         break;
@@ -553,7 +552,7 @@ switch (browser()) {
                 chrome.tabs.create({ url: '/popup.html' });
             } else if (details.reason === 'update') {
                 const thisVersion = chrome.runtime.getManifest().version;
-                console.log('Updated from ' + details.previousVersion + ' to ' + thisVersion);
+                console.info('Updated from ' + details.previousVersion + ' to ' + thisVersion);
             }
         });
         break;
