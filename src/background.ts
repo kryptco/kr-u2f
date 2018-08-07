@@ -11,7 +11,7 @@ import { client, makeRegisterData, addPresenceAndCounter } from './u2f';
 
 
 import {getOriginFromUrl, getDomainFromOrigin} from './url';
-import { BAD_APPID, verifyU2fAppId, checkIsRegistrableDomainSuffix} from './origin-checker';
+import { BAD_APPID, verifyU2fAppId, checkIsRegistrableDomainSuffix, fetchAppIdUrl} from './origin-checker';
 import { browser, Browser } from './browser';
 
 async function onRequest(msg, sender) {
@@ -81,20 +81,26 @@ switch (browser()) {
 }
 
 function getFetcher(sender: chrome.runtime.MessageSender) {
-    return function fetch (url: string) : Promise<string> {
-        return new Promise(function(resolve, reject) {
-            var msg = {
-                type: "url_fetch",
-                url: url
+    switch (browser()) {
+        case Browser.safari:
+            return fetchAppIdUrl;
+        default:
+            return function fetch(url: string): Promise<string> {
+                return new Promise(function (resolve, reject) {
+                    var msg = {
+                        type: "url_fetch",
+                        url: url
+                    }
+                    sendToActiveTab
+                    chrome.tabs.sendMessage(sender.tab.id, msg, (response) => {
+                        if (response == null) {
+                            reject(chrome.runtime.lastError);
+                        } else {
+                            resolve(String(response));
+                        }
+                    });
+                })
             }
-            chrome.tabs.sendMessage(sender.tab.id, msg, (response) => {
-                if (response == null) {
-                    reject(chrome.runtime.lastError);
-                } else {
-                    resolve(String(response));
-                }
-            });
-        })
     }
 }
 
