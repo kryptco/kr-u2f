@@ -4,6 +4,7 @@ node_modules
 target
 KryptonU2F.safariextension/js
 *.zip
+*.safariextz
 dist/chromium/*.css
 dist/firefox/*.css
 dist/chromium/*.css.map
