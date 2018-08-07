@@ -34,6 +34,11 @@ module.exports = {
   module: {
     strictExportPresence: true,
     rules: [{
+      enforce: 'pre',
+      test: /\.(ts|tsx)$/,
+      include: path.resolve(__dirname, 'src'),
+      loader: 'tslint-loader',
+    }, {
       test: /\.(js|jsx|mjs)$/,
       include: path.resolve(__dirname, 'src'),
       loader: 'babel-loader',
