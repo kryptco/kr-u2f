@@ -18,6 +18,11 @@ $(document).ready(async () => {
             Message.newRequest(new Request(RequestType.unpair))
         );
     });
+
+    $('#accounts a').click(e => {
+        safari.application.activeBrowserWindow.openTab().url = e.currentTarget.getAttribute('href');
+        safari.extension.toolbarItems[0].popover.hide();
+    });
 });
 
 async function sendRequest(m: Message) {
