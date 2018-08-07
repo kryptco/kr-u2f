@@ -1,39 +1,42 @@
-import {RequestTypes, ResponseTypes} from './enums'
-import { webauthnStringify, webauthnParse } from "./krjson";
+import {RequestTypes, ResponseTypes} from './enums';
+import { webauthnParse, webauthnStringify } from './krjson';
 
 declare var cloneInto;
-declare var exportFunction
+declare var exportFunction;
 
 export function injectU2fInterface() {
-    var nativeU2f = window['u2f'];
+    const nativeU2f = window['u2f'];
 
     function listener(evt) {
-        var u2f = window['wrappedJSObject']['u2f']
-        let msg = evt.data;
-        let requestId = msg.requestId;
+        const u2f = window['wrappedJSObject']['u2f'];
+        const msg = evt.data;
+        const requestId = msg.requestId;
 
-        if ((<any>Object).values(ResponseTypes).includes(evt.data.type)) {
-            if(msg.responseData) {
-                if(msg.type == ResponseTypes.REGISTER_U2F || msg.type == ResponseTypes.SIGN_U2F) {
-                    let req = u2f.requests[requestId];
-                    let callback = u2f.callbacks[requestId];
-                    if(msg.responseData.fallback) {
-                        console.log("falling back to native implementation")
-                        if(req.type == RequestTypes.REGISTER_U2F) {
-                            u2f.native.register(req.appId, req.registerRequests, req.registeredKeys, callback, req.timeoutSeconds);
-                        }
-                        else if(req.type == RequestTypes.SIGN_U2F) {
+        if ((Object as any).values(ResponseTypes).includes(evt.data.type)) {
+            if (msg.responseData) {
+                if (msg.type === ResponseTypes.REGISTER_U2F || msg.type === ResponseTypes.SIGN_U2F) {
+                    const req = u2f.requests[requestId];
+                    const callback = u2f.callbacks[requestId];
+                    if (msg.responseData.fallback) {
+                        console.warn('falling back to native implementation');
+                        if (req.type === RequestTypes.REGISTER_U2F) {
+                            u2f.native.register(
+                                                    req.appId,
+                                                    req.registerRequests,
+                                                    req.registeredKeys,
+                                                    callback,
+                                                    req.timeoutSeconds,
+                                                );
+                        } else if (req.type === RequestTypes.SIGN_U2F) {
                             u2f.native.sign(req.appId, req.challenge, req.registeredKeys, callback, req.timeoutSeconds);
                         }
-                    }
-                    else {
+                    } else {
                         callback(msg.responseData);
                     }
                     delete u2f.requests[requestId];
                     delete u2f.callbacks[requestId];
-                }
-                else if (msg.type == ResponseTypes.REGISTER_WEBAUTHN || msg.type == ResponseTypes.SIGN_WEBAUTHN) {
-                    var webauthnCallbacks = navigator['wrappedJSObject'].credentials.callbacks;
+                } else if (msg.type === ResponseTypes.REGISTER_WEBAUTHN || msg.type === ResponseTypes.SIGN_WEBAUTHN) {
+                    const webauthnCallbacks = navigator['wrappedJSObject'].credentials.callbacks;
                     webauthnCallbacks[msg.requestId](msg);
                     delete (webauthnCallbacks[msg.requestId]);
                 }
@@ -42,46 +45,46 @@ export function injectU2fInterface() {
     }
 
     function registerU2f(appId, registerRequests, registeredKeys, callback, opt_timeoutSeconds) {
-        var u2f = window['wrappedJSObject']['u2f']
-        if(!u2f.listenerAdded) {
+        const u2f = window['wrappedJSObject']['u2f'];
+        if (!u2f.listenerAdded) {
             window.addEventListener('message', listener);
             u2f.listenerAdded = true;
         }
-        var requestId = ++u2f.reqCounter;
-        var msg = {
+        const requestId = ++u2f.reqCounter;
+        const msg = {
+            appId,
+            registerRequests,
+            registeredKeys,
+            requestId,
+            timeoutSeconds: opt_timeoutSeconds,
             type: RequestTypes.REGISTER_U2F,
-            requestId: requestId,
-            appId: appId,
-            registerRequests: registerRequests,
-            registeredKeys: registeredKeys,
-            timeoutSeconds: opt_timeoutSeconds
-        }
+        };
         u2f.callbacks[requestId] = callback;
         u2f.requests[requestId] = msg;
         window.postMessage(msg, window.location.origin);
     }
 
     function signU2f(appId, challenge, registeredKeys, callback, opt_timeoutSeconds) {
-        var u2f = window['wrappedJSObject']['u2f']
-        if(!u2f.listenerAdded) {
+        const u2f = window['wrappedJSObject']['u2f'];
+        if (!u2f.listenerAdded) {
             window.addEventListener('message', listener);
             u2f.listenerAdded = true;
         }
-        var requestId = ++u2f.reqCounter;
-        var msg = {
+        const requestId = ++u2f.reqCounter;
+        const msg = {
+            appId,
+            challenge,
+            registeredKeys,
+            requestId,
+            timeoutSeconds: opt_timeoutSeconds,
             type: RequestTypes.SIGN_U2F,
-            requestId: requestId,
-            appId: appId,
-            challenge: challenge,
-            registeredKeys: registeredKeys,
-            timeoutSeconds: opt_timeoutSeconds
-        }
+        };
         u2f.callbacks[requestId] = callback;
         u2f.requests[requestId] = msg;
         window.postMessage(msg, window.location.origin);
     }
 
-    var u2f = cloneInto(
+    const u2f = cloneInto(
         {
             callbacks: {},
             listenerAdded: false,
@@ -93,7 +96,7 @@ export function injectU2fInterface() {
         window,
         {
             cloneFunctions: true,
-        }
+        },
     );
     Object.defineProperty(window['wrappedJSObject'], 'u2f', {
         value: u2f,
@@ -102,97 +105,105 @@ export function injectU2fInterface() {
     Object.defineProperty(window['wrappedJSObject']['u2f'], 'native', {
         value: nativeU2f,
     });
-    
-    let krCredentials = {
-        create: function (options: CredentialCreationOptions): Promise<Credential | null> {
-            var u2f = window['wrappedJSObject']['u2f']
+
+    const krCredentials = {
+        create(options: CredentialCreationOptions): Promise<Credential | null> {
+            const u2f = window['wrappedJSObject']['u2f'];
             if (!u2f.listenerAdded) {
                 window.addEventListener('message', listener);
                 u2f.listenerAdded = true;
             }
-            var webauthnReqCounter = navigator['wrappedJSObject'].credentials.reqCounter;
-            var webauthnCallbacks = navigator['wrappedJSObject'].credentials.callbacks;
-            var pageWindow = window['wrappedJSObject'];
+            let webauthnReqCounter = navigator['wrappedJSObject'].credentials.reqCounter;
+            const webauthnCallbacks = navigator['wrappedJSObject'].credentials.callbacks;
+            const pageWindow = window['wrappedJSObject'];
             try {
-                let requestId = ++webauthnReqCounter;
-                let registerRequest = {
-                    type: RequestTypes.REGISTER_WEBAUTHN,
-                    requestId,
+                const requestId = ++webauthnReqCounter;
+                const registerRequest = {
                     options: webauthnStringify(options),
+                    requestId,
+                    type: RequestTypes.REGISTER_WEBAUTHN,
                 };
 
-                let cb: Promise<any> = new pageWindow.Promise(exportFunction((res, rej) => {
+                const cb: Promise<any> = new pageWindow.Promise(exportFunction((res, rej) => {
                     webauthnCallbacks[requestId] = res;
                 }, window));
                 window.postMessage(registerRequest, window.location.origin);
-                return cb.then(exportFunction(r => {
-                    var webauthnResponse = cloneInto(webauthnParse(r.responseData.credential), window, { cloneFunctions: true });
+                return cb.then(exportFunction((r) => {
+                    const webauthnResponse = cloneInto(
+                                                        webauthnParse(r.responseData.credential),
+                                                        window,
+                                                        { cloneFunctions: true },
+                                                      );
                     return webauthnResponse;
                 }, window));
             } catch (e) {
-                console.debug(e);
+                console.error(e);
                 //  never resolve
-                return new pageWindow.Promise(exportFunction((res, rej) => {}, window));
+                return new pageWindow.Promise(exportFunction((res, rej) => { return; }, window));
             }
         },
 
-        get: function (options?: CredentialRequestOptions): Promise<Credential | null | any> {
-            var u2f = window['wrappedJSObject']['u2f']
+        get(options?: CredentialRequestOptions): Promise<Credential | null | any> {
+            const u2f = window['wrappedJSObject']['u2f'];
             if (!u2f.listenerAdded) {
                 window.addEventListener('message', listener);
                 u2f.listenerAdded = true;
             }
-            var webauthnReqCounter = navigator['wrappedJSObject'].credentials.reqCounter;
-            var webauthnCallbacks = navigator['wrappedJSObject'].credentials.callbacks;
-            var pageWindow = window['wrappedJSObject'];
+            let webauthnReqCounter = navigator['wrappedJSObject'].credentials.reqCounter;
+            const webauthnCallbacks = navigator['wrappedJSObject'].credentials.callbacks;
+            const pageWindow = window['wrappedJSObject'];
             try {
-                let requestId = ++webauthnReqCounter;
-                let signRequest = {
-                    type: RequestTypes.SIGN_WEBAUTHN,
-                    requestId,
+                const requestId = ++webauthnReqCounter;
+                const signRequest = {
                     options: webauthnStringify(options),
+                    requestId,
+                    type: RequestTypes.SIGN_WEBAUTHN,
                 };
 
-                let cb = new pageWindow.Promise(exportFunction((res, rej) => {
+                const cb = new pageWindow.Promise(exportFunction((res, rej) => {
                     webauthnCallbacks[requestId] = res;
                 }, window));
                 window.postMessage(signRequest, window.location.origin);
-                return cb.then(exportFunction(r => {
-                    var webauthnResponse = cloneInto(webauthnParse(r.responseData.credential), window, { cloneFunctions: true })
-                    return webauthnResponse
+                return cb.then(exportFunction((r) => {
+                    const webauthnResponse = cloneInto(
+                                                        webauthnParse(r.responseData.credential),
+                                                        window,
+                                                        { cloneFunctions: true },
+                                                      );
+                    return webauthnResponse;
                 }, window));
             } catch (e) {
-                console.debug(e);
+                console.error(e);
                 //  never resolve
-                return new pageWindow.Promise(exportFunction((res, rej) => {}, window));
+                return new pageWindow.Promise(exportFunction((res, rej) => { return; }, window));
             }
         },
     };
 
-    let hybridCredentials = {
+    const hybridCredentials = {
         create: (options: CredentialCreationOptions): Promise<Credential | null> => {
-            let credentialBackends = new window['wrappedJSObject'].Array(
+            const credentialBackends = new window['wrappedJSObject'].Array(
                 krCredentials,
                 navigator['wrappedJSObject'].credentials.native,
             );
             return window['wrappedJSObject'].Promise.race(
                 credentialBackends
-                    .filter(exportFunction(f => f && f.create, window))
-                    .map(exportFunction(b => b.create(options), window))
+                    .filter(exportFunction((f) => f && f.create, window))
+                    .map(exportFunction((b) => b.create(options), window)),
             );
         },
         get: (options?: CredentialRequestOptions): Promise<Credential | null | any> => {
-            let credentialBackends = new window['wrappedJSObject'].Array(
+            const credentialBackends = new window['wrappedJSObject'].Array(
                 krCredentials,
                 navigator['wrappedJSObject'].credentials.native,
             );
             return window['wrappedJSObject'].Promise.race(
                 credentialBackends
-                    .filter(exportFunction(f => f && f.get, window))
-                    .map(exportFunction(b => b.get(options), window))
+                    .filter(exportFunction((f) => f && f.get, window))
+                    .map(exportFunction((b) => b.get(options), window)),
             );
-        }
-    }
+        },
+    };
 
     function wrapWebauthn() {
         function createWrapper(options: CredentialCreationOptions) {
@@ -211,10 +222,10 @@ export function injectU2fInterface() {
         }
         navigator['credentials'].create = createWrapper;
         navigator['credentials'].get = getWrapper;
-    };
+    }
 
-    var nativeWebauthn = navigator['wrappedJSObject'].credentials;
-    var credentials = cloneInto(
+    const nativeWebauthn = navigator['wrappedJSObject'].credentials;
+    const credentials = cloneInto(
         {
             callbacks: {},
             create: hybridCredentials.create,
@@ -227,7 +238,7 @@ export function injectU2fInterface() {
         {
             cloneFunctions: true,
             wrapReflectors: true,
-        }
+        },
     );
     Object.defineProperty(navigator['wrappedJSObject'], 'credentials', {
         value: credentials,
@@ -237,9 +248,8 @@ export function injectU2fInterface() {
         value: nativeWebauthn,
     });
     try {
-        window['eval']("(" + wrapWebauthn.toString() + ")()");
-    }
-    catch (e) {
+        window['eval']('(' + wrapWebauthn.toString() + ')()');
+    } catch (e) {
         console.error('wrap failed with error: ' + e);
     }
 }

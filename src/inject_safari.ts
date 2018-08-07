@@ -1,36 +1,39 @@
-import {RequestTypes, ResponseTypes} from './enums'
-import { webauthnStringify, webauthnParse } from "./krjson";
+import {RequestTypes, ResponseTypes} from './enums';
+import { webauthnParse, webauthnStringify } from './krjson';
 
-(function () {
-    var nativeU2f = window['u2f'];
+(function() {
+    const nativeU2f = window['u2f'];
 
     function listener(evt) {
-        var u2f = window['u2f']
-        let msg = evt.data;
-        let requestId = msg.requestId;
+        const u2f = window['u2f'];
+        const msg = evt.data;
+        const requestId = msg.requestId;
 
-        if ((<any>Object).values(ResponseTypes).includes(evt.data.type)) {
-            if(msg.responseData) {
-                if(msg.type == ResponseTypes.REGISTER_U2F || msg.type == ResponseTypes.SIGN_U2F) {
-                    let req = u2f.requests[requestId];
-                    let callback = u2f.callbacks[requestId];
-                    if(msg.responseData.fallback) {
-                        console.log("falling back to native implementation")
-                        if(req.type == RequestTypes.REGISTER_U2F) {
-                            u2f.native.register(req.appId, req.registerRequests, req.registeredKeys, callback, req.timeoutSeconds);
-                        }
-                        else if(req.type == RequestTypes.SIGN_U2F) {
+        if ((Object as any).values(ResponseTypes).includes(evt.data.type)) {
+            if (msg.responseData) {
+                if (msg.type === ResponseTypes.REGISTER_U2F || msg.type === ResponseTypes.SIGN_U2F) {
+                    const req = u2f.requests[requestId];
+                    const callback = u2f.callbacks[requestId];
+                    if (msg.responseData.fallback) {
+                        console.warn('falling back to native implementation');
+                        if (req.type === RequestTypes.REGISTER_U2F) {
+                            u2f.native.register(
+                                                    req.appId,
+                                                    req.registerRequests,
+                                                    req.registeredKeys,
+                                                    callback,
+                                                    req.timeoutSeconds,
+                                                );
+                        } else if (req.type === RequestTypes.SIGN_U2F) {
                             u2f.native.sign(req.appId, req.challenge, req.registeredKeys, callback, req.timeoutSeconds);
                         }
-                    }
-                    else {
+                    } else {
                         callback(msg.responseData);
                     }
                     delete u2f.requests[requestId];
                     delete u2f.callbacks[requestId];
-                }
-                else if (msg.type == ResponseTypes.REGISTER_WEBAUTHN || msg.type == ResponseTypes.SIGN_WEBAUTHN) {
-                    var webauthnCallbacks = navigator.credentials['callbacks'];
+                } else if (msg.type === ResponseTypes.REGISTER_WEBAUTHN || msg.type === ResponseTypes.SIGN_WEBAUTHN) {
+                    const webauthnCallbacks = navigator.credentials['callbacks'];
                     webauthnCallbacks[msg.requestId](msg);
                     delete (webauthnCallbacks[msg.requestId]);
                 }
@@ -38,47 +41,47 @@ import { webauthnStringify, webauthnParse } from "./krjson";
         }
     }
 
-    function registerU2f(appId, registerRequests, registeredKeys, callback, opt_timeoutSeconds) {
-        var u2f = window['u2f']
-        if(!u2f.listenerAdded) {
+    function registerU2f(appId, registerRequests, registeredKeys, callback, optTimeoutSeconds) {
+        const u2f = window['u2f'];
+        if (!u2f.listenerAdded) {
             window.addEventListener('message', listener);
             u2f.listenerAdded = true;
         }
-        var requestId = ++u2f.reqCounter;
-        var msg = {
+        const requestId = ++u2f.reqCounter;
+        const msg = {
+            appId,
+            registerRequests,
+            registeredKeys,
+            requestId,
+            timeoutSeconds: optTimeoutSeconds,
             type: RequestTypes.REGISTER_U2F,
-            requestId: requestId,
-            appId: appId,
-            registerRequests: registerRequests,
-            registeredKeys: registeredKeys,
-            timeoutSeconds: opt_timeoutSeconds
-        }
+        };
         u2f.callbacks[requestId] = callback;
         u2f.requests[requestId] = msg;
         window.postMessage(msg, window.location.origin);
     }
 
-    function signU2f(appId, challenge, registeredKeys, callback, opt_timeoutSeconds) {
-        var u2f = window['u2f']
-        if(!u2f.listenerAdded) {
+    function signU2f(appId, challenge, registeredKeys, callback, optTimeoutSeconds) {
+        const u2f = window['u2f'];
+        if (!u2f.listenerAdded) {
             window.addEventListener('message', listener);
             u2f.listenerAdded = true;
         }
-        var requestId = ++u2f.reqCounter;
-        var msg = {
+        const requestId = ++u2f.reqCounter;
+        const msg = {
+            appId,
+            challenge,
+            registeredKeys,
+            requestId,
+            timeoutSeconds: optTimeoutSeconds,
             type: RequestTypes.SIGN_U2F,
-            requestId: requestId,
-            appId: appId,
-            challenge: challenge,
-            registeredKeys: registeredKeys,
-            timeoutSeconds: opt_timeoutSeconds
-        }
+        };
         u2f.callbacks[requestId] = callback;
         u2f.requests[requestId] = msg;
         window.postMessage(msg, window.location.origin);
     }
 
-    var u2f = {
+    const u2f = {
         callbacks: {},
         listenerAdded: false,
         register: registerU2f,
@@ -93,98 +96,98 @@ import { webauthnStringify, webauthnParse } from "./krjson";
     Object.defineProperty(window['u2f'], 'native', {
         value: nativeU2f,
     });
-    
-    let krCredentials = {
-        create: function (options: CredentialCreationOptions): Promise<Credential | null> {
-            var u2f = window['u2f']
+
+    const krCredentials = {
+        create(options: CredentialCreationOptions): Promise<Credential | null> {
+            const u2f = window['u2f'];
             if (!u2f.listenerAdded) {
                 window.addEventListener('message', listener);
                 u2f.listenerAdded = true;
             }
-            var webauthnReqCounter = navigator.credentials['reqCounter'];
-            var webauthnCallbacks = navigator.credentials['callbacks'];
+            let webauthnReqCounter = navigator.credentials['reqCounter'];
+            const webauthnCallbacks = navigator.credentials['callbacks'];
             try {
-                let requestId = ++webauthnReqCounter;
-                let registerRequest = {
-                    type: RequestTypes.REGISTER_WEBAUTHN,
-                    requestId,
+                const requestId = ++webauthnReqCounter;
+                const registerRequest = {
                     options: webauthnStringify(options),
+                    requestId,
+                    type: RequestTypes.REGISTER_WEBAUTHN,
                 };
 
-                let cb: Promise<any> = new Promise((res, rej) => {
+                const cb: Promise<any> = new Promise((res, rej) => {
                     webauthnCallbacks[requestId] = res;
                 });
                 window.postMessage(registerRequest, window.location.origin);
-                return cb.then(r => {
-                    var webauthnResponse = webauthnParse(r.responseData.credential);
+                return cb.then((r) => {
+                    const webauthnResponse = webauthnParse(r.responseData.credential);
                     return webauthnResponse;
                 });
             } catch (e) {
-                console.debug(e);
+                console.error(e);
                 //  never resolve
-                return new Promise((res, rej) => {});
+                return new Promise((res, rej) => { return; });
             }
         },
 
-        get: function (options?: CredentialRequestOptions): Promise<Credential | null | any> {
-            var u2f = window['u2f']
+        get(options?: CredentialRequestOptions): Promise<Credential | null | any> {
+            const u2f = window['u2f'];
             if (!u2f.listenerAdded) {
                 window.addEventListener('message', listener);
                 u2f.listenerAdded = true;
             }
-            var webauthnReqCounter = navigator.credentials['reqCounter'];
-            var webauthnCallbacks = navigator.credentials['callbacks'];
+            let webauthnReqCounter = navigator.credentials['reqCounter'];
+            const webauthnCallbacks = navigator.credentials['callbacks'];
             try {
-                let requestId = ++webauthnReqCounter;
-                let signRequest = {
-                    type: RequestTypes.SIGN_WEBAUTHN,
-                    requestId,
+                const requestId = ++webauthnReqCounter;
+                const signRequest = {
                     options: webauthnStringify(options),
+                    requestId,
+                    type: RequestTypes.SIGN_WEBAUTHN,
                 };
 
-                let cb = new Promise((res, rej) => {
+                const cb = new Promise((res, rej) => {
                     webauthnCallbacks[requestId] = res;
                 });
                 window.postMessage(signRequest, window.location.origin);
-                return cb.then(r => {
-                    var webauthnResponse = webauthnParse(r['responseData'].credential)
-                    return webauthnResponse
+                return cb.then((r) => {
+                    const webauthnResponse = webauthnParse(r['responseData'].credential);
+                    return webauthnResponse;
                 });
             } catch (e) {
-                console.debug(e);
+                console.error(e);
                 //  never resolve
-                return new Promise((res, rej) => {});
+                return new Promise((res, rej) => { return; });
             }
         },
     };
 
-    let hybridCredentials = {
+    const hybridCredentials = {
         create: (options: CredentialCreationOptions): Promise<Credential | null> => {
-            let credentialBackends = [
+            const credentialBackends = [
                 krCredentials,
                 navigator.credentials['native'],
             ];
             return Promise.race(
                 credentialBackends
-                    .filter(f => f && f.create)
-                    .map(b => b.create(options))
+                    .filter((f) => f && f.create)
+                    .map((b) => b.create(options)),
             );
         },
         get: (options?: CredentialRequestOptions): Promise<Credential | null | any> => {
-            let credentialBackends = [
+            const credentialBackends = [
                 krCredentials,
                 navigator.credentials['native'],
             ];
             return Promise.race(
                 credentialBackends
-                    .filter(f => f && f.get)
-                    .map(b => b.get(options))
+                    .filter((f) => f && f.get)
+                    .map((b) => b.get(options)),
             );
-        }
-    }
+        },
+    };
 
-    var nativeWebauthn = navigator.credentials;
-    var credentials = {
+    const nativeWebauthn = navigator.credentials;
+    const credentials = {
         callbacks: {},
         create: hybridCredentials.create,
         get: hybridCredentials.get,

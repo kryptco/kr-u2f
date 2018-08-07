@@ -1,55 +1,50 @@
-import { Message, RequestType, Toast } from './messages';
-import EnclaveClient from './enclave_client';
-import { stringify, parse, webauthnParse, webauthnStringify } from './krjson';
-import * as protocol from './protocol';
-import {to_base64_url_nopad, from_base64_url_nopad, crypto_hash_sha256} from './crypto';
-import {RequestTypes, ResponseTypes} from './enums'
-
-import {createAuthenticatorDataWithAttestation, createAuthenticatorDataWithoutAttestation} from './webauthn';
 import * as CBOR from 'cbor';
-import { client, makeRegisterData, addPresenceAndCounter } from './u2f';
 
-
-import {getOriginFromUrl, getDomainFromOrigin} from './url';
-import { BAD_APPID, verifyU2fAppId, checkIsRegistrableDomainSuffix, fetchAppIdUrl} from './origin-checker';
 import { browser, Browser } from './browser';
+import {crypto_hash_sha256, from_base64_url_nopad, to_base64_url_nopad} from './crypto';
+import EnclaveClient from './enclave_client';
+import {RequestTypes, ResponseTypes} from './enums';
+import { parse, stringify, webauthnParse, webauthnStringify } from './krjson';
+import { Message, RequestType, Toast } from './messages';
+import { BAD_APPID, checkIsRegistrableDomainSuffix, fetchAppIdUrl, verifyU2fAppId} from './origin-checker';
+import * as protocol from './protocol';
+import { addPresenceAndCounter, client, makeRegisterData } from './u2f';
+import {getDomainFromOrigin, getOriginFromUrl} from './url';
+import {createAuthenticatorDataWithAttestation, createAuthenticatorDataWithoutAttestation} from './webauthn';
 
 async function onRequest(msg, sender) {
     if (msg.type) {
         console.debug(msg);
-        if (msg.type == RequestTypes.REGISTER_U2F) {
-            var sendResponse = getResponseSender(ResponseTypes.REGISTER_U2F, msg.requestId, sender);
+        if (msg.type === RequestTypes.REGISTER_U2F) {
+            const sendResponse = getResponseSender(ResponseTypes.REGISTER_U2F, msg.requestId, sender);
             handle_u2f_register(msg, sender).then(sendResponse)
-                                            .catch((e) => { console.error(e); sendResponse({ fallback: true }) });
+                                            .catch((e) => { console.error(e); sendResponse({ fallback: true }); });
             return;
-        }
-        else if (msg.type == RequestTypes.REGISTER_WEBAUTHN) {
-            var sendResponse = getResponseSender(ResponseTypes.REGISTER_WEBAUTHN, msg.requestId, sender);
+        } else if (msg.type === RequestTypes.REGISTER_WEBAUTHN) {
+            const sendResponse = getResponseSender(ResponseTypes.REGISTER_WEBAUTHN, msg.requestId, sender);
             handle_webauthn_register(msg, sender).then(sendResponse)
                                                  .catch(console.error);
             return;
-        }
-        else if (msg.type == RequestTypes.SIGN_U2F) {
-            var sendResponse = getResponseSender(ResponseTypes.SIGN_U2F, msg.requestId, sender);
+        } else if (msg.type === RequestTypes.SIGN_U2F) {
+            const sendResponse = getResponseSender(ResponseTypes.SIGN_U2F, msg.requestId, sender);
             handle_u2f_sign(msg, sender).then(sendResponse)
-                                        .catch((e) => { console.error(e); sendResponse({ fallback: true }) });
+                                        .catch((e) => { console.error(e); sendResponse({ fallback: true }); });
             return;
-        }
-        else if (msg.type == RequestTypes.SIGN_WEBAUTHN) {
-            var sendResponse = getResponseSender(ResponseTypes.SIGN_WEBAUTHN, msg.requestId, sender);
+        } else if (msg.type === RequestTypes.SIGN_WEBAUTHN) {
+            const sendResponse = getResponseSender(ResponseTypes.SIGN_WEBAUTHN, msg.requestId, sender);
             handle_webauthn_sign(msg, sender).then(sendResponse)
                                             .catch(console.error);
             return;
         }
     }
-    if (typeof(msg) == 'string') {
+    if (typeof(msg) === 'string') {
         msg = await parse(Message, msg);
     }
     return onMessage(msg);
 }
 
 async function onMessage(m: Message) {
-    let c = await client;
+    const c = await client;
     if (m.request) {
         switch (m.request.ty) {
             case RequestType.getState: {
@@ -72,9 +67,9 @@ async function onMessage(m: Message) {
 switch (browser()) {
     case Browser.safari:
         safari.application.addEventListener('message', (evt) => {
-            onRequest((<any>evt).message, evt.target);
+            onRequest((evt as any).message, evt.target);
         });
-        (<any>safari.extension.globalPage.contentWindow).krRequestGlobalPage = onRequest;
+        (safari.extension.globalPage.contentWindow as any).krRequestGlobalPage = onRequest;
         break;
     default:
         chrome.runtime.onMessage.addListener(onRequest);
@@ -86,12 +81,11 @@ function getFetcher(sender: chrome.runtime.MessageSender) {
             return fetchAppIdUrl;
         default:
             return function fetch(url: string): Promise<string> {
-                return new Promise(function (resolve, reject) {
-                    var msg = {
-                        type: "url_fetch",
-                        url: url
-                    }
-                    sendToActiveTab
+                return new Promise(function(resolve, reject) {
+                    const msg = {
+                        type: 'url_fetch',
+                        url,
+                    };
                     chrome.tabs.sendMessage(sender.tab.id, msg, (response) => {
                         if (response == null) {
                             reject(chrome.runtime.lastError);
@@ -99,130 +93,136 @@ function getFetcher(sender: chrome.runtime.MessageSender) {
                             resolve(String(response));
                         }
                     });
-                })
-            }
+                });
+            };
     }
 }
 
-function getResponseSender(responseType: string, requestId: number, sender: chrome.runtime.MessageSender | browser.runtime.MessageSender) {
-    var responseSent = false;
-    return function (responseData: object) {
-        if(responseSent) {
-            console.warn("Attempting to send multiple responses");
+function getResponseSender(responseType: string,
+                           requestId: number,
+                           sender: chrome.runtime.MessageSender | browser.runtime.MessageSender) {
+    let responseSent = false;
+    return function(responseData: object) {
+        if (responseSent) {
+            console.warn('Attempting to send multiple responses');
             return;
         }
         responseSent = true;
-        let response = {
-            type: responseType,
+        const response = {
             data: {
-                requestId: requestId,
-                responseData: responseData,
+                requestId,
+                responseData,
             },
+            type: responseType,
         };
         sendIfTabActive(sender, response);
-    }
+    };
 }
 
-async function handle_webauthn_register(msg: any, sender: chrome.runtime.MessageSender | browser.runtime.MessageSender) {
-    let c = await client;
+async function handle_webauthn_register(msg: any,
+                                        sender: chrome.runtime.MessageSender | browser.runtime.MessageSender) {
+    const c = await client;
 
-    let options : CredentialCreationOptions = webauthnParse(msg.options);
-    let pkOptions = options.publicKey;
+    const options: CredentialCreationOptions = webauthnParse(msg.options);
+    const pkOptions = options.publicKey;
 
-    let origin = getOriginFromUrl(sender.url);
-    if(pkOptions.rp.id && !checkIsRegistrableDomainSuffix(origin, pkOptions.rp.id)) {
-        throw "SecurityError";
+    const origin = getOriginFromUrl(sender.url);
+    if (pkOptions.rp.id && !checkIsRegistrableDomainSuffix(origin, pkOptions.rp.id)) {
+        throw new Error('SecurityError');
     }
-    let rpId = pkOptions.rp.id || getDomainFromOrigin(origin);
+    const rpId = pkOptions.rp.id || getDomainFromOrigin(origin);
     if (pkOptions.excludeCredentials) {
-        for (var i = 0; i < pkOptions.excludeCredentials.length; i++) {
-            if (await c.mapKeyHandleToMatchingAppId(new Uint8Array(<ArrayBuffer>pkOptions.excludeCredentials[i].id), {rpId})) {
-                throw "Krypton already registered with this account";
+        for (const excludeCredential of pkOptions.excludeCredentials) {
+            const keyHandle = new Uint8Array(excludeCredential.id as ArrayBuffer);
+            if (await c.mapKeyHandleToMatchingAppId(keyHandle, {rpId})) {
+                throw new Error('Krypton already registered with this account');
             }
         }
     }
 
     let foundNistKeyType = false;
     if (pkOptions.pubKeyCredParams) {
-        for (var i = 0; i < pkOptions.pubKeyCredParams.length; i++) {
-            let params = pkOptions.pubKeyCredParams[i];
-            if (params.alg == -7 && params.type == 'public-key') {
+        for (const params of pkOptions.pubKeyCredParams) {
+            if (params.alg === -7 && params.type === 'public-key') {
                 foundNistKeyType = true;
                 break;
             }
         }
         if (!foundNistKeyType) {
-            throw "only nistp256 keys supported";
+            throw new Error('only nistp256 keys supported');
         }
     }
 
-    let clientData = JSON.stringify({
-        type: 'webauthn.create',
-        challenge: await to_base64_url_nopad(new Uint8Array(<any>pkOptions.challenge)),
+    const clientData = JSON.stringify({
+        challenge: await to_base64_url_nopad(new Uint8Array(pkOptions.challenge as any)),
+        clientExtensions: {},
+        hashAlgorithm: 'SHA-256',
         origin,
         tokenBinding: {
-            "status": "not-supported"
+            status: 'not-supported',
         },
-        clientExtensions: {},
-        hashAlgorithm: "SHA-256",
+        type: 'webauthn.create',
     });
-    let clientDataB64 = await to_base64_url_nopad(clientData);
+    const clientDataB64 = await to_base64_url_nopad(clientData);
 
-    let challenge = await crypto_hash_sha256(clientData);
+    const challenge = await crypto_hash_sha256(clientData);
 
-    let response = await c.enrollU2f({
-        challenge,
+    const response = await c.enrollU2f({
         app_id: rpId,
+        challenge,
     });
     if (!response.u2f_register_response) {
-        throw 'no u2f_register_response';
+        throw new Error('no u2f_register_response');
     }
     if (response.u2f_register_response.error) {
         throw response.u2f_register_response.error;
     }
 
-    let u2fRegisterResponse = response.u2f_register_response;
+    const u2fRegisterResponse = response.u2f_register_response;
 
-    let authenticatorData = await createAuthenticatorDataWithAttestation(rpId, u2fRegisterResponse.counter, u2fRegisterResponse.key_handle, u2fRegisterResponse.public_key);
+    const authenticatorData = await createAuthenticatorDataWithAttestation(rpId,
+                                                                           u2fRegisterResponse.counter,
+                                                                           u2fRegisterResponse.key_handle,
+                                                                           u2fRegisterResponse.public_key);
 
     let attestationObject: ArrayBuffer;
-    if (pkOptions.attestation == null || pkOptions.attestation == 'none') {
+    if (pkOptions.attestation == null || pkOptions.attestation === 'none') {
         attestationObject = CBOR.encode({
-            fmt: 'none',
             attStmt: {},
             authData: new Buffer(authenticatorData.buffer),
+            fmt: 'none',
         }).buffer;
     } else {
         attestationObject = CBOR.encode({
-            fmt: 'fido-u2f',
             attStmt: {
                 sig: new Buffer(u2fRegisterResponse.signature.buffer),
                 x5c: [new Buffer(u2fRegisterResponse.attestation_certificate.buffer)],
             },
             authData: new Buffer(authenticatorData.buffer),
+            fmt: 'fido-u2f',
         }).buffer;
     }
 
-    let credential: Credential = {
+    const credential: Credential = {
         id: await to_base64_url_nopad(u2fRegisterResponse.key_handle),
-        type: 'public-key',
         rawId: u2fRegisterResponse.key_handle.buffer,
         response: {
-            clientDataJSON: (await from_base64_url_nopad(clientDataB64)).buffer,
             attestationObject,
+            clientDataJSON: (await from_base64_url_nopad(clientDataB64)).buffer,
         },
+        type: 'public-key',
     };
 
-    let authenticatedResponseData = {
+    const authenticatedResponseData = {
         credential: webauthnStringify(credential),
-    }
+    };
     return authenticatedResponseData;
 }
 
 async function handle_u2f_register(msg: any, sender: chrome.runtime.MessageSender | browser.runtime.MessageSender) {
-    let fetcher = getFetcher(sender);
-    let origin = getOriginFromUrl(sender.url);
-    let appId = msg.appId
+    const fetcher = getFetcher(sender);
+    const origin = getOriginFromUrl(sender.url);
+    const appId = msg.appId
         || ((msg.registerRequests && msg.registerRequests.length > 0) ? msg.registerRequests[0].appId : null)
         || origin;
 
@@ -233,75 +233,75 @@ async function handle_u2f_register(msg: any, sender: chrome.runtime.MessageSende
         return {errorCode: BAD_APPID};
     }
 
-    let c = await client;
-    
+    const c = await client;
+
     if (!c.pairing.isPaired()) {
-        throw "Krypton not paired";
+        throw new Error('Krypton not paired');
     }
-    let existingKeyHandles : string[] = [];
+    const existingKeyHandles: string[] = [];
     if (msg.registeredKeys) {
-        for (var i = 0; i < msg.registeredKeys.length; i++) {
-            existingKeyHandles.push(msg.registeredKeys[i].keyHandle);
+        for (const registeredKey of msg.registeredKeys) {
+            existingKeyHandles.push(registeredKey.keyHandle);
         }
     }
     if (msg.signRequests) {
-        for (var i = 0; i < msg.signRequests.length; i++) {
-            existingKeyHandles.push(msg.signRequests[i].keyHandle);
+        for (const signRequest of msg.signRequests) {
+            existingKeyHandles.push(signRequest.keyHandle);
         }
     }
-    for (var i = 0; i < existingKeyHandles.length; i++) {
+    for (const existingKeyHandle of existingKeyHandles) {
         try {
-            let keyHandle = await from_base64_url_nopad(existingKeyHandles[i]);
+            const keyHandle = await from_base64_url_nopad(existingKeyHandle);
             if (await c.mapKeyHandleToMatchingAppId(keyHandle, { appId })) {
                 //  already registered
                 return { fallback: true };
             }
         } catch (e) {
-            console.log(e);
+            console.error(e);
         }
     }
 
-    let serverChallenge : string;
-    let clientData : string;
-    
+    let serverChallenge: string;
+    let clientData: string;
+
     //  TODO: detect U2F_V2/V1 requests
     serverChallenge = msg.registerRequests[0].challenge;
     clientData = JSON.stringify({
-        typ: 'navigator.id.finishEnrollment',
         challenge: serverChallenge,
-        origin,
         cid_pubkey: 'unused',
+        origin,
+        typ: 'navigator.id.finishEnrollment',
     });
 
-    let challenge = await crypto_hash_sha256(clientData);
+    const challenge = await crypto_hash_sha256(clientData);
 
-    let response = await c.enrollU2f({
-        challenge,
+    const response = await c.enrollU2f({
         app_id: appId,
+        challenge,
     });
     if (!response.u2f_register_response) {
-        throw 'no u2f_register_response';
+        throw new Error('no u2f_register_response');
     }
     if (response.u2f_register_response.error) {
         throw response.u2f_register_response.error;
     }
 
-    let authenticatedResponseData = {
-        keyHandle: await to_base64_url_nopad(response.u2f_register_response.key_handle),
+    const authenticatedResponseData = {
         clientData: await to_base64_url_nopad(clientData),
+        keyHandle: await to_base64_url_nopad(response.u2f_register_response.key_handle),
         registrationData: await to_base64_url_nopad(makeRegisterData(response.u2f_register_response)),
-        version: "U2F_V2",
+        version: 'U2F_V2',
     };
     return authenticatedResponseData;
 }
 
 async function handle_webauthn_sign(msg: any, sender: chrome.runtime.MessageSender) {
-    let c = await client;
-    let fetcher = getFetcher(sender);
+    const c = await client;
+    const fetcher = getFetcher(sender);
 
-    let pkOptions = webauthnParse(msg.options).publicKey;
+    const pkOptions = webauthnParse(msg.options).publicKey;
 
-    let origin = getOriginFromUrl(sender.url);
+    const origin = getOriginFromUrl(sender.url);
 
     let keyHandle: Uint8Array;
     let matchingAppId: string;
@@ -310,19 +310,19 @@ async function handle_webauthn_sign(msg: any, sender: chrome.runtime.MessageSend
         if (pkOptions.extensions && pkOptions.extensions.appid) {
             try {
                 await verifyU2fAppId(origin, pkOptions.extensions.appid, fetcher);
-                appId = pkOptions.extensions.appid
+                appId = pkOptions.extensions.appid;
             } catch (err) {
                 console.error(err);
                 return {errorCode: BAD_APPID};
             }
         }
-        if(pkOptions.rpId && !checkIsRegistrableDomainSuffix(origin, pkOptions.rpId)) {
-            throw "SecurityError";
+        if (pkOptions.rpId && !checkIsRegistrableDomainSuffix(origin, pkOptions.rpId)) {
+            throw new Error('SecurityError');
         }
-        let rpId : string = pkOptions.rpId || getDomainFromOrigin(origin);
+        const rpId: string = pkOptions.rpId || getDomainFromOrigin(origin);
 
-        for (var i = 0; i < pkOptions.allowCredentials.length; i++) {
-            let id = pkOptions.allowCredentials[i].id;
+        for (const credential of pkOptions.allowCredentials) {
+            const id = credential.id;
             matchingAppId = await c.mapKeyHandleToMatchingAppId(id, { appId, rpId });
             if (matchingAppId) {
                 keyHandle = id;
@@ -331,71 +331,70 @@ async function handle_webauthn_sign(msg: any, sender: chrome.runtime.MessageSend
         }
     }
     if (!keyHandle) {
-        throw "Krypton not registered with this key handle"
+        throw new Error('Krypton not registered with this key handle');
     }
 
-    let clientData = JSON.stringify({
-        type: 'webauthn.get',
+    const clientData = JSON.stringify({
         challenge: await to_base64_url_nopad(pkOptions.challenge),
-        origin: origin,
         clientExtensions: pkOptions.extensions,
-        hashAlgorithm: "SHA-256",
+        hashAlgorithm: 'SHA-256',
+        origin,
+        type: 'webauthn.get',
     });
-    let clientDataB64 = await to_base64_url_nopad(clientData);
+    const clientDataB64 = await to_base64_url_nopad(clientData);
 
-    let challenge = await crypto_hash_sha256(clientData);
+    const challenge = await crypto_hash_sha256(clientData);
 
-    let response: protocol.Response = await c.signU2f({
-        challenge,
+    const response: protocol.Response = await c.signU2f({
         app_id: matchingAppId,
+        challenge,
         key_handle: keyHandle,
     });
     if (!response.u2f_authenticate_response) {
-        throw 'no u2f_authenticate_response';
+        throw new Error('no u2f_authenticate_response');
     }
     if (response.u2f_authenticate_response.error) {
         throw response.u2f_authenticate_response.error;
     }
 
-    let u2fSignResponse = response.u2f_authenticate_response;
+    const u2fSignResponse = response.u2f_authenticate_response;
 
-    let authenticatorData = await createAuthenticatorDataWithoutAttestation(matchingAppId, u2fSignResponse.counter);
+    const authenticatorData = await createAuthenticatorDataWithoutAttestation(matchingAppId, u2fSignResponse.counter);
 
-    let credential: Credential = {
+    const credential: Credential = {
         id: await to_base64_url_nopad(keyHandle),
-        type: 'public-key',
         rawId: keyHandle.buffer,
         response: {
-            clientDataJSON: (await from_base64_url_nopad(clientDataB64)).buffer,
             authenticatorData: authenticatorData.buffer,
+            clientDataJSON: (await from_base64_url_nopad(clientDataB64)).buffer,
             signature: u2fSignResponse.signature.buffer,
             userHandle: new ArrayBuffer(0),
         },
+        type: 'public-key',
     };
-    
-    let authenticatedResponseData = {
+
+    const authenticatedResponseData = {
         credential: webauthnStringify(credential),
-    }
+    };
     return authenticatedResponseData;
 }
 
 async function handle_u2f_sign(msg: any, sender: chrome.runtime.MessageSender) {
-    let origin = getOriginFromUrl(sender.url);
-    let fetcher = getFetcher(sender);
+    const origin = getOriginFromUrl(sender.url);
+    const fetcher = getFetcher(sender);
 
-    let c = await client;
+    const c = await client;
     //  unify both request formats into registeredKeys
     if (msg.signRequests && !msg.registeredKeys) {
-        if (msg.signRequests.length == 0) {
+        if (msg.signRequests.length === 0) {
             return {};
         }
-        let registeredKeys = [];
-        for (var i = 0; i < msg.signRequests.length; i++) {
-            let signRequest = msg.signRequests[i];
+        const registeredKeys = [];
+        for (const signRequest of msg.signRequests) {
             registeredKeys.push({
-                keyHandle: signRequest.keyHandle,
-                challenge: signRequest.challenge,
                 appId: signRequest.appId,
+                challenge: signRequest.challenge,
+                keyHandle: signRequest.keyHandle,
             });
         }
         msg.registeredKeys = registeredKeys;
@@ -405,13 +404,13 @@ async function handle_u2f_sign(msg: any, sender: chrome.runtime.MessageSender) {
     let keyHandle;
     let serverChallenge;
     {
-        for (var i = 0; i < msg.registeredKeys.length; i++) {
-            let keyHandleBytes = await from_base64_url_nopad(msg.registeredKeys[i].keyHandle);
-            let potentialAppId: string = msg.registeredKeys[i].appId || msg.appId || origin;
-            let appId = await c.mapKeyHandleToMatchingAppId(keyHandleBytes, {appId: potentialAppId});
+        for (const registeredKey of msg.registeredKeys) {
+            const keyHandleBytes = await from_base64_url_nopad(registeredKey.keyHandle);
+            const potentialAppId: string = registeredKey.appId || msg.appId || origin;
+            const appId = await c.mapKeyHandleToMatchingAppId(keyHandleBytes, {appId: potentialAppId});
             if (appId) {
                 keyHandle = keyHandleBytes;
-                serverChallenge = msg.registeredKeys[i].challenge || msg.challenge;
+                serverChallenge = registeredKey.challenge || msg.challenge;
                 matchingAppId = appId;
                 break;
             }
@@ -423,39 +422,39 @@ async function handle_u2f_sign(msg: any, sender: chrome.runtime.MessageSender) {
 
     try {
         await verifyU2fAppId(origin, matchingAppId, fetcher);
-    } catch(err) {
+    } catch (err) {
         console.error(err);
         return {errorCode: BAD_APPID};
     }
 
-    let clientData = JSON.stringify({
-        typ: 'navigator.id.getAssertion',
+    const clientData = JSON.stringify({
         challenge: serverChallenge,
-        origin: getOriginFromUrl(sender.url),
         cid_pubkey: 'unused',
+        origin: getOriginFromUrl(sender.url),
+        typ: 'navigator.id.getAssertion',
     });
 
-    let challenge = await crypto_hash_sha256(clientData);
+    const challenge = await crypto_hash_sha256(clientData);
 
-    let response = await c.signU2f({
-        challenge,
+    const response = await c.signU2f({
         app_id: matchingAppId,
+        challenge,
         key_handle: keyHandle,
     });
     if (!response.u2f_authenticate_response) {
-        throw 'no u2f_authenticate_response';
+        throw new Error('no u2f_authenticate_response');
     }
     if (response.u2f_authenticate_response.error) {
         throw response.u2f_authenticate_response.error;
     }
 
-    let signatureData = await to_base64_url_nopad(
-        addPresenceAndCounter(response.u2f_authenticate_response)
+    const signatureData = await to_base64_url_nopad(
+        addPresenceAndCounter(response.u2f_authenticate_response),
     );
-    let authenticatedResponseData = {
+    const authenticatedResponseData = {
+        clientData: await to_base64_url_nopad(clientData),
         keyHandle: await to_base64_url_nopad(keyHandle),
         signatureData,
-        clientData: await to_base64_url_nopad(clientData),
     };
     return authenticatedResponseData;
 }
@@ -467,7 +466,7 @@ function sendStates(c: EnclaveClient) {
 function sendToPopup(o: any) {
     switch (browser()) {
         case Browser.safari:
-            let sendFn = (<any>safari.extension.globalPage.contentWindow).krSendToPopup;
+            const sendFn = (safari.extension.globalPage.contentWindow as any).krSendToPopup;
             if (sendFn) {
                 sendFn(o);
             }
@@ -478,14 +477,14 @@ function sendToPopup(o: any) {
 }
 
 function sendFullStateToPopup(c: EnclaveClient) {
-    let r = c.getState();
+    const r = c.getState();
     sendToPopup(r);
 }
 
 function sendPending(s: string) {
-    let t = new Toast();
+    const t = new Toast();
     t.pending = s;
-    let m = Message.newToast(t);
+    const m = Message.newToast(t);
     sendMessageToActiveTab(m);
 }
 
@@ -496,21 +495,21 @@ async function sendMessageToActiveTab(m: Message) {
 async function sendIfTabActive(sender: chrome.runtime.MessageSender | browser.runtime.MessageSender, o: any) {
     switch (browser()) {
         case Browser.safari:
-            (<any>sender).page.dispatchMessage(o.type, o);
+            (sender as any).page.dispatchMessage(o.type, o);
             return;
         default:
-            chrome.tabs.query({ active: true, currentWindow: true }, async function (tabs) {
+            chrome.tabs.query({ active: true, currentWindow: true }, async function(tabs) {
                 if (tabs[0]) {
-                    if (tabs[0].id == sender.tab.id) {
+                    if (tabs[0].id === sender.tab.id) {
                         chrome.tabs.sendMessage(
                             sender.tab.id,
                             o,
                         );
                     } else {
-                        console.log('sender tab not active');
+                        console.error('sender tab not active');
                     }
                 } else {
-                    console.log('no tab active');
+                    console.error('no tab active');
                 }
             });
     }
@@ -520,9 +519,9 @@ async function sendToActiveTab(s: string) {
     switch (browser()) {
         case Browser.safari:
             //  TODO: not yet implemented
-            return
+            return;
         default:
-            chrome.tabs.query({ active: true, currentWindow: true }, async function (tabs) {
+            chrome.tabs.query({ active: true, currentWindow: true }, async function(tabs) {
                 chrome.tabs.sendMessage(
                     tabs[0].id,
                     s,
@@ -531,30 +530,30 @@ async function sendToActiveTab(s: string) {
     }
 }
 
-client.then(c => { c.onChange = sendStates.bind(null, c) });
+client.then((c) => { c.onChange = sendStates.bind(null, c); });
 
 switch (browser()) {
     case Browser.safari:
         //  https://stackoverflow.com/questions/9868985/safari-extension-first-run-and-updates
-        var storedVersion = safari.extension.settings.version;
-        var currentVersion = safari.extension.displayVersion + '.' + safari.extension.bundleVersion;
+        const storedVersion = safari.extension.settings.version;
+        const currentVersion = safari.extension.displayVersion + '.' + safari.extension.bundleVersion;
         if (typeof storedVersion === 'undefined') {
             //  Install
-            safari.extension.settings.version = currentVersion
+            safari.extension.settings.version = currentVersion;
             safari.extension.toolbarItems[0].showPopover();
-        } else if (currentVersion != storedVersion) {
+        } else if (currentVersion !== storedVersion) {
             //  Update
             console.log('Extension update');
-            safari.extension.settings.version = currentVersion
+            safari.extension.settings.version = currentVersion;
         }
         break;
     default:
-        chrome.runtime.onInstalled.addListener(function (details) {
-            if (details.reason == "install") {
-                chrome.tabs.create({ url: "/popup.html" });
-            } else if (details.reason == "update") {
-                var thisVersion = chrome.runtime.getManifest().version;
-                console.log("Updated from " + details.previousVersion + " to " + thisVersion);
+        chrome.runtime.onInstalled.addListener(function(details) {
+            if (details.reason === 'install') {
+                chrome.tabs.create({ url: '/popup.html' });
+            } else if (details.reason === 'update') {
+                const thisVersion = chrome.runtime.getManifest().version;
+                console.log('Updated from ' + details.previousVersion + ' to ' + thisVersion);
             }
         });
         break;

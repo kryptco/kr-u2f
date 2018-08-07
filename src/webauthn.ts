@@ -1,39 +1,47 @@
 import * as CBOR from 'cbor';
-import { crypto_hash_sha256, from_base64_url_nopad } from "./crypto";
-import { counterToBytes } from './u2f';
+import { crypto_hash_sha256, from_base64_url_nopad } from './crypto';
 import { KRYPTON_U2F_MAGIC } from './protocol';
+import { counterToBytes } from './u2f';
 
-let KRYPTON_AAGUID = KRYPTON_U2F_MAGIC.slice(0, 16);
+const KRYPTON_AAGUID = KRYPTON_U2F_MAGIC.slice(0, 16);
 
-export async function createAuthenticatorDataWithoutAttestation(rpId: string, counter: number) : Promise<Uint8Array> {
-    let rpIdHash = await crypto_hash_sha256(rpId);
+export async function createAuthenticatorDataWithoutAttestation(rpId: string, counter: number): Promise<Uint8Array> {
+    const rpIdHash = await crypto_hash_sha256(rpId);
 
-    let authenticatorData = new Uint8Array(rpIdHash.length + 1 + 4);
+    const authenticatorData = new Uint8Array(rpIdHash.length + 1 + 4);
     authenticatorData.set(rpIdHash, 0);
-    //user-presence flag
+    // user-presence flag
     authenticatorData[rpIdHash.length] = 1;
-    //counter
+    // counter
     authenticatorData.set(counterToBytes(counter), rpIdHash.length + 1);
     return authenticatorData;
 }
-export async function createAuthenticatorDataWithAttestation(rpId: string, counter: number, credId: Uint8Array, publicKey: Uint8Array) : Promise<Uint8Array> {
-    let withoutAttestation = await createAuthenticatorDataWithoutAttestation(rpId, counter);
+export async function createAuthenticatorDataWithAttestation(
+                                                                rpId: string,
+                                                                counter: number,
+                                                                credId: Uint8Array,
+                                                                publicKey: Uint8Array,
+                                                            ): Promise<Uint8Array> {
+    const withoutAttestation = await createAuthenticatorDataWithoutAttestation(rpId, counter);
 
-    let aaguid = KRYPTON_AAGUID;
+    const aaguid = KRYPTON_AAGUID;
 
-    let credIdLen = new Uint8Array(2);
+    const credIdLen = new Uint8Array(2);
     credIdLen[0] = (credId.length >> 8) & 0xff;
     credIdLen[1] = credId.length & 0xff;
 
-    let attData = new Map();
+    const attData = new Map();
     attData.set(1, 2);
     attData.set(3, -7);
     attData.set(-1, 1);
     attData.set(-2, new Buffer(publicKey.slice(1, 33).buffer));    // x-coord
     attData.set(-3, new Buffer(publicKey.slice(33, 65).buffer));    // y-coord
-    let attCBOR = new Uint8Array(CBOR.encode(attData));
+    const attCBOR = new Uint8Array(CBOR.encode(attData));
 
-    let authenticatorData = new Uint8Array(withoutAttestation.length + aaguid.length + credIdLen.byteLength + credId.length + attCBOR.byteLength);
+    const authenticatorData = new Uint8Array(   withoutAttestation.length
+                                                + aaguid.length
+                                                + credIdLen.byteLength
+                                                + credId.length + attCBOR.byteLength);
     let offset = 0;
 
     authenticatorData.set(withoutAttestation, offset);
@@ -41,7 +49,7 @@ export async function createAuthenticatorDataWithAttestation(rpId: string, count
 
     authenticatorData.set(aaguid, offset);
     offset += aaguid.length;
-    
+
     authenticatorData.set(credIdLen, offset);
     offset += credIdLen.byteLength;
 
@@ -51,7 +59,7 @@ export async function createAuthenticatorDataWithAttestation(rpId: string, count
     authenticatorData.set(attCBOR, offset);
     offset += attCBOR.length;
 
-    //add attestation to flags
+    // add attestation to flags
     authenticatorData[32] |= (1 << 6);
 
     return authenticatorData;

@@ -1,82 +1,88 @@
-import { webauthnStringify, webauthnParse } from "./krjson";
+import { webauthnParse, webauthnStringify } from './krjson';
 
 (() => {
 
-    let webauthnCallbacks = {};
+    const webauthnCallbacks = {};
     let webauthnReqCounter = 0;
-    let nativeCredentials = {
-        get: navigator.credentials.get,
+    const nativeCredentials = {
         create: navigator.credentials.create,
+        get: navigator.credentials.get,
     };
-    let krCredentials : any = {};
-    krCredentials.create = async function (options: CredentialCreationOptions): Promise<Credential | null> {
-        let requestId = ++webauthnReqCounter;
-        let registerRequest = {
-            type: 'webauthn_register_request',
-            requestId,
+    const krCredentials: any = {};
+    krCredentials.create = async function(options: CredentialCreationOptions): Promise<Credential | null> {
+        const requestId = ++webauthnReqCounter;
+        const registerRequest = {
             options: webauthnStringify(options),
+            requestId,
+            type: 'webauthn_register_request',
         };
 
-        let cb: Promise<any> = new Promise((res, rej) => {
+        const cb: Promise<any> = new Promise((res, rej) => {
             webauthnCallbacks[requestId] = res;
         });
         window.postMessage(registerRequest, window.location.origin);
-        let webauthnResponse = await cb;
+        const webauthnResponse = await cb;
 
-        let credential = webauthnParse(webauthnResponse.responseData.credential);
-        credential.getClientExtensionResults = function () { return {}; };
+        const credential = webauthnParse(webauthnResponse.responseData.credential);
+        credential.getClientExtensionResults = function() { return {}; };
         credential.__proto__ = window['PublicKeyCredential'].prototype;
         return credential;
-    }
-    krCredentials.get = async function (options?: CredentialRequestOptions): Promise<Credential | null | any> {
-        let requestId = ++webauthnReqCounter;
-        let cb = new Promise<any>((res, rej) => {
+    };
+    krCredentials.get = async function(options?: CredentialRequestOptions): Promise<Credential | null | any> {
+        const requestId = ++webauthnReqCounter;
+        const cb = new Promise<any>((res, rej) => {
             webauthnCallbacks[requestId] = res;
         });
 
-        let signRequest = {
-            type: 'webauthn_sign_request',
-            requestId,
+        const signRequest = {
             options: webauthnStringify(options),
+            requestId,
+            type: 'webauthn_sign_request',
         };
         window.postMessage(signRequest, window.location.origin);
 
-        let webauthnResponse = await cb;
+        const webauthnResponse = await cb;
 
-        let credential = webauthnParse(webauthnResponse.responseData.credential);
-        credential.getClientExtensionResults = function () { return {}; };
+        const credential = webauthnParse(webauthnResponse.responseData.credential);
+        credential.getClientExtensionResults = function() { return {}; };
         credential.__proto__ = window['PublicKeyCredential'].prototype;
         return credential;
-    }
+    };
 
     //  TODO: abort other backends when one finishes using the AbortController API
     //  https://dom.spec.whatwg.org/#aborting-ongoing-activities
-    let hybridCredentials = {
-        create: async function (options: CredentialCreationOptions): Promise<Credential | null> {
-            let credentialBackends = [
+    const hybridCredentials = {
+        async create(options: CredentialCreationOptions): Promise<Credential | null> {
+            const credentialBackends = [
                 krCredentials,
             ];
             if (nativeCredentials.create) {
                 credentialBackends.push(nativeCredentials);
             }
-            return Promise.race(credentialBackends.map(b => b.create.bind(navigator.credentials)(options)));
+            return Promise.race(credentialBackends.map((b) => b.create.bind(navigator.credentials)(options)));
         },
-        get: async function(options?: CredentialRequestOptions): Promise<Credential | null | any> {
-            let credentialBackends = [
+        async get(options?: CredentialRequestOptions): Promise<Credential | null | any> {
+            const credentialBackends = [
                 krCredentials,
             ];
             if (nativeCredentials.get) {
                 credentialBackends.push(nativeCredentials);
             }
-            return Promise.race(credentialBackends.map(b => b.get.bind(navigator.credentials)(options)));
+            return Promise.race(credentialBackends.map((b) => b.get.bind(navigator.credentials)(options)));
         },
     };
 
     Object.assign(navigator.credentials, hybridCredentials);
 
-    window.addEventListener('message', function (evt) {
-        let msg = evt.data;
-        if (['u2f_register_response', 'u2f_sign_response', 'webauthn_register_response', 'webauthn_sign_response'].indexOf(msg.type) > -1) {
+    window.addEventListener('message', function(evt) {
+        const msg = evt.data;
+        if (
+                ['u2f_register_response',
+                'u2f_sign_response',
+                'webauthn_register_response',
+                'webauthn_sign_response']
+                .indexOf(msg.type) > -1
+            ) {
             if (msg.requestId && webauthnCallbacks[msg.requestId]) {
                 webauthnCallbacks[msg.requestId](msg);
                 delete (webauthnCallbacks[msg.requestId]);
