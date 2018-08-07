@@ -26,6 +26,7 @@
     "sass-loader": "^7.0.1",
     "strip-sourcemap-loader": "^0.0.1",
     "ts-loader": "^3.5.0",
+    "tslint": "^5.11.0",
     "typescript": "^2.8.3",
     "web-ext-types": "^2.1.0",
     "webpack": "^3.10.0",
