@@ -4,13 +4,16 @@ stored in the __Krypton__ ([iOS](https://github.com/kryptco/krypton-ios) or
 [Android](https://github.com/kryptco/krypton-android)) mobile app. _The
 private keys never leave the phone._
 
-# Supported Browsers
-Currently only Google Chrome is supported. Firefox, Safari, and Edge support
-is coming soon!
+Currently, kr-u2f supports Google Chrome and Mozilla Firefox. Safari and Edge support
+are coming soon!
 
 # Install
-Install `kr-u2f` from the [Chrome Extension
-Store](https://chrome.google.com/webstore/detail/madlgmccpddkhohkdobabokeecnjonhl).
+
+### Chrome/Chromium
+Install [Krypton Authenticator](https://chrome.google.com/webstore/detail/madlgmccpddkhohkdobabokeecnjonhl) from the Chrome Extension Store.
+
+### Firefox
+Install [Krypton Authenticator](https://addons.mozilla.org/firefox/addon/krypton-authenticator/) from Firefox Add-ons.
 
 # Build Dependencies
 - [nodeJS](https://nodejs.org/en/download/)
@@ -22,9 +25,15 @@ Store](https://chrome.google.com/webstore/detail/madlgmccpddkhohkdobabokeecnjonh
 yarn
 make build
 ```
-Then in Chrome, click the triple-dots in the upper-right > More Tools >
-Extensions, enable Developer Mode, click Load Unpacked, then select the `dist`
+
+Then:
+### Chrome/Chromium
+Click the triple-dots in the upper-right > More Tools >
+Extensions, enable Developer Mode, click Load Unpacked, then select the `dist/chromium`
 folder.
+
+### Firefox
+Click on the three bars in the upper-right > Add-ons, in the resulting page click the gear in the upper-right > Install Add-on From File... , then select the `dist/firefox/manifest.json` file.
 
 # CONTRIBUTING
 Check out `CONTRIBUTING.md`
