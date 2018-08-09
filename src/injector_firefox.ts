@@ -45,6 +45,15 @@ export function injectU2fInterface() {
     }
 
     function registerU2f(appId, registerRequests, registeredKeys, callback, opt_timeoutSeconds) {
+        if (typeof(registeredKeys) === 'function') {
+            // Old api, need to switch argument order
+            // Old register argument order is registerRequests, signRequests (for registered keys), callback, timeout
+            opt_timeoutSeconds = callback;
+            callback = registeredKeys;
+            registeredKeys = registerRequests.map((signRequest) => signRequest.keyHandle);
+            registerRequests = appId;
+            appId = registerRequests[0].appId;
+        }
         const u2f = window['wrappedJSObject']['u2f'];
         if (!u2f.listenerAdded) {
             window.addEventListener('message', listener);
@@ -65,6 +74,15 @@ export function injectU2fInterface() {
     }
 
     function signU2f(appId, challenge, registeredKeys, callback, opt_timeoutSeconds) {
+        if (typeof(challenge) === 'function') {
+            // Old api, need to switch argument order
+            // Old sign argument order is signRequests, callback, timeout
+            opt_timeoutSeconds = registeredKeys;
+            callback = challenge;
+            registeredKeys = appId.map((signRequest) => signRequest.keyHandle);
+            challenge = appId[0].challenge;
+            appId = appId[0].appId;
+        }
         const u2f = window['wrappedJSObject']['u2f'];
         if (!u2f.listenerAdded) {
             window.addEventListener('message', listener);
