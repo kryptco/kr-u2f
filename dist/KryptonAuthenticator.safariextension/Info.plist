@@ -25,6 +25,8 @@
 			<dict>
 				<key>Filename</key>
 				<string>popup.html</string>
+				<key>Height</key>
+				<integer>800</integer>
 				<key>Identifier</key>
 				<string>Krypton U2F</string>
 				<key>Width</key>
@@ -63,6 +65,8 @@
 			</array>
 		</dict>
 	</dict>
+	<key>Description</key>
+	<string>Zero-touch, phishing proof second factor with the Krypton iOS and Android app.</string>
 	<key>DeveloperIdentifier</key>
 	<string>W7AMYM5LPN</string>
 	<key>ExtensionInfoDictionaryVersion</key>
