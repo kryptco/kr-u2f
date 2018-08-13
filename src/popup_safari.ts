@@ -111,4 +111,4 @@ async function onState(m: Message) {
 
 (safari.extension.globalPage.contentWindow as any).krSendToPopup = onState;
 
-safari.self['height'] = 800;
+safari.self['height'] = 600;

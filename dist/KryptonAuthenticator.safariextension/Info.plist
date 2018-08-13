@@ -28,7 +28,9 @@
 				<key>Identifier</key>
 				<string>Krypton U2F</string>
 				<key>Width</key>
-				<integer>500</integer>
+				<integer>360</integer>
+				<key>Height</key>
+				<integer>600</integer>
 			</dict>
 		</array>
 		<key>Toolbar Items</key>

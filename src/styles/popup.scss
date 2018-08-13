@@ -19,6 +19,10 @@ $c-yellow: rgb(245, 105, 105);
     }
 }
 
+html {
+    font-size: 16px;
+}
+
 body {
     --blue-bg: #E5EBF1;
     --blue-fg: #6D7D92;
@@ -31,9 +35,11 @@ body {
     background-color: var(--blue-bg);
     padding: 0;
     margin: 0;
-    min-width: 30em;
+    min-width: 360px;
     color: $c-dark;
     height: 600px;
+
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 .screen {
@@ -52,9 +58,9 @@ body {
         background: #fff;
         border-radius: 25%;        
         margin: auto;
-        margin-top: calc(50% + 5em);       
-        width: 10em;
-        height: 10em;
+        margin-top: calc(50% + 60px);       
+        width: 120px;
+        height: 120px;
         -webkit-box-shadow: 0 0 10px 0px rgba(119, 119, 119, 0.38);
         box-shadow: 0 0 10px 0px rgba(119, 119, 119, 0.38);
 
@@ -62,14 +68,14 @@ body {
 
         img {
             margin: auto;
-            width: 5em;
+            width: 60px;
         }
     }
 }
 
 .navbar {
     margin: 0;
-    margin-bottom: 1em;
+    margin-bottom: 16px;
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -83,7 +89,7 @@ body {
     img {
         height: 34px;
         width: 30px;
-        padding: 1em;
+        padding: 16px;
         margin: auto;
     }
 }
@@ -95,12 +101,12 @@ body {
             -webkit-box-shadow: 0 0 20px 0px rgba(119, 119, 119, 0.38);
             box-shadow: 0 0 20px 0px rgba(119, 119, 119, 0.38);
     
-            margin: 2em;
-            border-radius: 1em;
+            margin: 24px;
+            border-radius: 12px;
             background: #fff;
         
-            @media (min-width: 40em) { 
-                max-width: 28em;
+            @media (min-width: 480px) { 
+                max-width: 336px;
                 margin-left: auto;
                 margin-right: auto;
             }
@@ -109,14 +115,14 @@ body {
             flex-direction: column;
             p {
                 margin: 0;
-                margin-top: 0.5em;
+                margin-top: 6px;
             }
             .title {
                 padding: 0;
                 margin-left: 10px;
                 margin-right: 10px;
                 font-weight: 600;
-                font-size: 1.5em;
+                font-size: 18px;
               
             }
     
@@ -124,11 +130,11 @@ body {
                 padding: 0;
                 margin-left: 10px;
                 margin-right: 10px;
-                margin-bottom: 0.5em;
-                margin-top: 1em;
+                margin-bottom: 6px;
+                margin-top: 12px;
                 font-weight: 400;
                 text-align: center;
-                font-size: 0.8em;
+                font-size: 10px;
                 text-transform: uppercase;
 
                 .or {
@@ -145,13 +151,12 @@ body {
                 a {
                     margin: auto;
 
-                    font-size: 2em;
-                    text-decoration-style: none;
-                    text-decoration-line: none;
+                    font-size: 24px;
+                    text-decoration: none;
                     color: $c-accent;
                     text-align: center;
-                    margin-top: 0em;
-                    margin-bottom: 0em;
+                    margin-top: 0;
+                    margin-bottom: 0;
                     font-weight: bold;
                     width: min-content;
 
@@ -163,7 +168,7 @@ body {
                 }
                 p {
                     text-transform: uppercase;
-                    font-size: 1em;
+                    font-size: 12px;
                     color: $c-bluegray;
                     margin-top: 0;
                 }
@@ -174,8 +179,8 @@ body {
                 display: flex;
                 margin-left: auto;
                 margin-right: auto;
-                margin-top: 1em;
-                margin-bottom: 1em;
+                margin-top: 12px;
+                margin-bottom: 12px;
                 a {
                     text-decoration: none;        
                     margin-top: auto;
@@ -197,14 +202,14 @@ body {
 
 
 #pairingQR {
-    padding-top: 2em;
-    padding-bottom: 2em;
+    padding-top: 24px;
+    padding-bottom: 24px;
     display: flex;
     justify-content: space-around;
 
     svg {
-        width: 10em;
-        height: 10em;
+        width: 120px;
+        height: 120px;
         border: 8px solid $c-bg;
         border-radius: 10px;
         animation: pulse 3s infinite;
@@ -220,7 +225,7 @@ body {
         display: flex;
         flex-direction: row;
         // border: 1px solid $c-bluegray;
-        padding: 1em;
+        padding: 12px;
         margin: auto;
         margin-top: 0;
         border-radius: 8px;
@@ -229,11 +234,11 @@ body {
         box-shadow: 0 0 10px 0px rgba(119, 119, 119, 0.38);
 
         p {
-            font-size: 1.4em;
+            font-size: 16px;
             font-weight: 300;
             margin: auto;
-            margin-left: 0em;
-            margin-right: 1em;
+            margin-left: 0;
+            margin-right: 12px;
             font-weight: 400;
             .tokenName {
                 color: $c-dark;
@@ -265,46 +270,48 @@ body {
 
     h2 {
         margin: auto;
-        margin-top: 1.8em;
+        margin-top: 22px;
         color: $c-bluegray;
         font-weight: 600;
-        font-size: 1.4em
+        font-size: 16px;
     }
 
     .grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        margin-top: 1em;
+        grid-template-rows: repeat(3, 1fr);
+        margin-top: 12px;
         margin-left: auto;
         margin-right: auto;
 
 
-
-        @media (min-width: 40em) { 
-            grid-gap: 2em;
+        @media (min-width: 480px) { 
+            grid-gap: 24px;
 
         }
 
         a {      
             text-decoration: none;
+            height: intrinsic;
         }
         .cell {
 
             display: flex;
             flex-direction: column;
             
-            padding: 1em;
+            padding: 12px;
 
             .name {            
                 color: $c-bluegray;
-                font-size: 1.1em;
+                font-size: 14px;
                 font-weight: bold;
-                margin-top: 0.5em; 
+                margin-top: 6px; 
                 text-align: center;
             }
             
             .icon {
                 box-shadow: 0 0 10px 0px rgba(119, 119, 119, 0.38);
+                -webkit-box-shadow: 0 0 10px 0px rgba(119, 119, 119, 0.38);
 
                 margin: auto;
                 height: 30px;
@@ -346,7 +353,7 @@ body {
         }
 
         .status {
-            font-size: 0.6em;
+            font-size: 8px;
             font-weight: 800;
             text-align: center;
         }
@@ -361,20 +368,20 @@ body {
     }
 
     #tutorial-title {
-        margin-bottom: 0.25em;
+        margin-bottom: 3px;
     }
     .tutorial {
-        margin-left: 2em;
-        margin-right: 2em;
+        margin-left: 24px;
+        margin-right: 24px;
         text-align: center;
 
         .number {
             color: $c-bluegray;
         }
         h3 {
-            margin: 0.25em;
+            margin: 3px;
             font-weight: 600;
-            font-size: 1em;
+            font-size: 12px;
         }
         p {
             text-align: center;
@@ -396,9 +403,9 @@ body {
     .version-label {
         text-align: center;
         font-weight: 400;
-        font-size: 0.8em;
+        font-size: 10px;
         color: rgba(109, 125, 146, 0.6);
-        padding-bottom: 0.5em;
+        padding-bottom: 6px;
 
         @media (min-height: 650px) { 
             margin-top: 50px;
@@ -408,7 +415,7 @@ body {
     .made-by {
         text-align: center;
         font-weight: 600;
-        font-size: 0.8em;
+        font-size: 10px;
         color: $c-bluegray;
 
         a {
@@ -441,6 +448,7 @@ body {
         // animation: fade 0.5s ease-out 0.25s forwards;
     }
     animation: fade 0.5s ease-out 0.25s forwards;
+    -webkit-animation: fade 0.5s ease-out 0.25s forwards;
 }
 @keyframes fade {
     from { 
@@ -451,9 +459,9 @@ body {
 
 @keyframes shieldslide {
     from { 
-        margin-top: calc(50% + 5em);       
+        margin-top: calc(50% + 60px);       
     }
-    to { margin-top: -20em }
+    to { margin-top: -240px }
 }
 @keyframes launchopen {
     from { background: $c-accent;}
@@ -464,6 +472,7 @@ body {
 .getstarted {
     position: fixed;
     animation: getstarted 1s ease-out forwards;
+    -webkit-animation: getstarted 1s ease-out forwards;
 }
 
 @keyframes getstarted {
@@ -474,6 +483,7 @@ body {
 .show-setup {
     display: block !important;
     animation: showsetup 1s linear forwards;
+    -webkit-animation: showsetup 1s linear forwards;
 }
 
 @keyframes showsetup {
@@ -485,14 +495,19 @@ body {
     0% {
         -moz-box-shadow: 0 0 0 0 var(--qr-fg-halfalpha);
         box-shadow: 0 0 0 0 var(--qr-fg-halfalpha);
+        -webkit-box-shadow: 0 0 0 0 var(--qr-fg-halfalpha);
     }
     70% {
         -moz-box-shadow: 0 0 0 10px var(--qr-fg-zeroalpha);
         box-shadow: 0 0 0 10px var(--qr-fg-zeroalpha);
+        -webkit-box-shadow: 0 0 0 10px var(--qr-fg-zeroalpha);
+
     }
     100% {
         -moz-box-shadow: 0 0 0 0 var(--qr-fg-zeroalpha);
         box-shadow: 0 0 0 0 var(--qr-fg-zeroalpha);
+        -webkit-box-shadow: 0 0 0 0 var(--qr-fg-zeroalpha);
+
     }  
 }
 
