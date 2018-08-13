@@ -36,7 +36,9 @@
     "tabs",
     "storage",
     "https://*/*",
-    "http://*/*"
+    "http://*/*",
+    "webRequest",
+    "webRequestBlocking"
   ],
   "web_accessible_resources": [
     "js/inject.js",

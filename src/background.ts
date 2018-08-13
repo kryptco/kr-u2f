@@ -1,6 +1,6 @@
 import * as CBOR from 'cbor';
 
-import { browser, Browser } from './browser';
+import { Browser, browser as detectBrowser } from './browser';
 import {crypto_hash_sha256, from_base64_url_nopad, to_base64_url_nopad} from './crypto';
 import EnclaveClient from './enclave_client';
 import {RequestTypes, ResponseTypes} from './enums';
@@ -63,7 +63,7 @@ async function onMessage(m: Message) {
     }
 }
 
-switch (browser()) {
+switch (detectBrowser()) {
     case Browser.safari:
         safari.application.addEventListener('message', (evt) => {
             onRequest((evt as any).message, evt.target);
@@ -75,7 +75,7 @@ switch (browser()) {
 }
 
 function getFetcher(sender: chrome.runtime.MessageSender) {
-    switch (browser()) {
+    switch (detectBrowser()) {
         case Browser.safari:
             return fetchAppIdUrl;
         default:
@@ -463,7 +463,7 @@ function sendStates(c: EnclaveClient) {
 }
 
 function sendToPopup(o: any) {
-    switch (browser()) {
+    switch (detectBrowser()) {
         case Browser.safari:
             const sendFn = (safari.extension.globalPage.contentWindow as any).krSendToPopup;
             if (sendFn) {
@@ -492,7 +492,7 @@ async function sendMessageToActiveTab(m: Message) {
 }
 
 async function sendIfTabActive(sender: chrome.runtime.MessageSender | browser.runtime.MessageSender, o: any) {
-    switch (browser()) {
+    switch (detectBrowser()) {
         case Browser.safari:
             (sender as any).page.dispatchMessage(o.type, o);
             return;
@@ -515,7 +515,7 @@ async function sendIfTabActive(sender: chrome.runtime.MessageSender | browser.ru
 }
 
 async function sendToActiveTab(s: string) {
-    switch (browser()) {
+    switch (detectBrowser()) {
         case Browser.safari:
             //  TODO: not yet implemented
             return;
@@ -529,9 +529,35 @@ async function sendToActiveTab(s: string) {
     }
 }
 
+switch (detectBrowser()) {
+    case Browser.firefox:
+        function user_agent_handler(details) {
+            for (const header of details.requestHeaders) {
+                if (header.name === 'User-Agent') {
+                    // Replace with user-agent string for Chrome 68 on Windows 10
+                    /* tslint:disable */
+                    header.value = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.2526.73 Safari/537.36';
+                    /* tslint:enable */
+                    break;
+                }
+            }
+
+            return { requestHeaders: details.requestHeaders };
+        }
+        const userAgentSpoofFilter = ['*://*.facebook.com/*',
+                                      '*://*.facebook.net/*',
+                                      '*://*.fbcdn.net/*',
+                                     ];
+        browser.webRequest.onBeforeSendHeaders.addListener(user_agent_handler,
+                                                   {urls: userAgentSpoofFilter},
+                                                   ['blocking', 'requestHeaders'],
+                                                  );
+        break;
+}
+
 client.then((c) => { c.onChange = sendStates.bind(null, c); });
 
-switch (browser()) {
+switch (detectBrowser()) {
     case Browser.safari:
         //  https://stackoverflow.com/questions/9868985/safari-extension-first-run-and-updates
         const storedVersion = safari.extension.settings.version;
