@@ -18,6 +18,8 @@
 	<string>1</string>
 	<key>Chrome</key>
 	<dict>
+		<key>Database Quota</key>
+		<integer>1048576</integer>
 		<key>Global Page</key>
 		<string>background.html</string>
 		<key>Popovers</key>
@@ -29,10 +31,10 @@
 				<integer>800</integer>
 				<key>Identifier</key>
 				<string>Krypton U2F</string>
+				<key>Height</key>
+				<integer>500</integer>
 				<key>Width</key>
 				<integer>360</integer>
-				<key>Height</key>
-				<integer>600</integer>
 			</dict>
 		</array>
 		<key>Toolbar Items</key>
@@ -41,7 +43,7 @@
 				<key>Identifier</key>
 				<string>popup</string>
 				<key>Image</key>
-				<string>img/krypton_icon.png</string>
+				<string>Icon.png</string>
 				<key>Include By Default</key>
 				<true/>
 				<key>Label</key>
