@@ -28,13 +28,11 @@
 				<key>Filename</key>
 				<string>popup.html</string>
 				<key>Height</key>
-				<integer>800</integer>
+				<integer>600</integer>
 				<key>Identifier</key>
 				<string>Krypton U2F</string>
 				<key>Width</key>
 				<integer>360</integer>
-				<key>Height</key>
-				<integer>600</integer>
 			</dict>
 		</array>
 		<key>Toolbar Items</key>
@@ -83,6 +81,8 @@
 			<string>All</string>
 		</dict>
 	</dict>
+	<key>Update Manifest URL</key>
+	<string>https://s3.amazonaws.com/safari.bin.krypt.co/KryptonAuthenticatorUpdate.plist</string>
 	<key>Website</key>
 	<string>https://krypt.co</string>
 </dict>
