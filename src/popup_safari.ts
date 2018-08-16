@@ -40,7 +40,8 @@ async function onPopupOpen() {
 
 async function pollState() {
     const poll = async () => {
-        if (!document.hasFocus()) {
+        //  necessary since a safari popup is persistent
+        if (document.visibilityState !== 'visible') {
             return;
         }
         const m = new Message();
