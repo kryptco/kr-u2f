@@ -99,7 +99,8 @@ async function onState(m: Message) {
                 pair.classList.remove('remove');
             }
 
-            if (lastQrCode == null || (await equals(lastQrCode, r.qr.pk)) === false) {
+            //  safari does not preserve correct Uint8Array type when crossing background -> popup boundary
+            if (lastQrCode == null || (await equals(Uint8Array.from(lastQrCode), Uint8Array.from(r.qr.pk))) === false) {
                 lastQrCode = r.qr.pk;
                 $('#pairingQR').html(await r.qr.render());
             }
