@@ -35,7 +35,7 @@ body {
     background-color: var(--blue-bg);
     padding: 0;
     margin: 0;
-    min-width: 360px;
+    min-width: 370px;
     color: $c-dark;
     height: 600px;
 
@@ -201,20 +201,22 @@ body {
 }
 
 
-#pairingQR {
+#pairingQRContainer {
     padding-top: 24px;
     padding-bottom: 24px;
-    display: flex;
-    justify-content: space-around;
-
-    svg {
-        width: 120px;
-        height: 120px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    #pairingQR {
         border: 8px solid $c-bg;
         border-radius: 10px;
         animation: pulse 3s infinite;
+        box-shadow: 0 0 0 0 var(--qr-fg-zeroalpha);
+        svg {
+            width: 120px;
+            height: 120px;
+        }
     }
-    
 }
 
 #accounts {
@@ -491,23 +493,30 @@ body {
     to { opacity: 1;}
 }
 
+@-webkit-keyframes pulse {
+    0% {
+        -webkit-box-shadow: 0 0 0 0 var(--qr-fg-halfalpha);
+    }
+    70% {
+        -webkit-box-shadow: 0 0 0 10px var(--qr-fg-zeroalpha);
+    }
+    100% {
+        -webkit-box-shadow: 0 0 0 0 var(--qr-fg-zeroalpha);
+    }  
+}
+
 @keyframes pulse {
     0% {
         -moz-box-shadow: 0 0 0 0 var(--qr-fg-halfalpha);
         box-shadow: 0 0 0 0 var(--qr-fg-halfalpha);
-        -webkit-box-shadow: 0 0 0 0 var(--qr-fg-halfalpha);
     }
     70% {
         -moz-box-shadow: 0 0 0 10px var(--qr-fg-zeroalpha);
         box-shadow: 0 0 0 10px var(--qr-fg-zeroalpha);
-        -webkit-box-shadow: 0 0 0 10px var(--qr-fg-zeroalpha);
-
     }
     100% {
         -moz-box-shadow: 0 0 0 0 var(--qr-fg-zeroalpha);
         box-shadow: 0 0 0 0 var(--qr-fg-zeroalpha);
-        -webkit-box-shadow: 0 0 0 0 var(--qr-fg-zeroalpha);
 
     }  
 }
-
