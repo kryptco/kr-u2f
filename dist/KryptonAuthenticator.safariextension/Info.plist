@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.8</string>
+	<string>1.0.9</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>Chrome</key>
@@ -32,7 +32,7 @@
 				<key>Identifier</key>
 				<string>Krypton U2F</string>
 				<key>Width</key>
-				<integer>370</integer>
+				<integer>360</integer>
 			</dict>
 		</array>
 		<key>Toolbar Items</key>
