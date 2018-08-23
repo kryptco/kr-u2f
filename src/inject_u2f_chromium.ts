@@ -1,9 +1,6 @@
 export function inject() {
 
-    //  mimic firefox to allow extension to be detected by https://krypt.co/start
-    if ((window as any).u2f) {
-        (window as any).u2f.native = (window as any).u2f;
-    }
+    (window as any).krU2F = true;
 
     const chrome = window['chrome'];
     function injectMessagePort() {
