@@ -142,7 +142,9 @@ async function handle_webauthn_register(msg: any,
     let foundNistKeyType = false;
     if (pkOptions.pubKeyCredParams) {
         for (const params of pkOptions.pubKeyCredParams) {
-            if (params.alg === -7 && params.type === 'public-key') {
+            // webauthn.io sets alg to the string '-7', so we accept anything that coerces to -7
+            // tslint:disable-next-line:triple-equals
+            if (params.alg == -7 && params.type === 'public-key') {
                 foundNistKeyType = true;
                 break;
             }
