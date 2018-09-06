@@ -36,7 +36,7 @@ export async function createAuthenticatorDataWithAttestation(
     attData.set(-1, 1);
     attData.set(-2, new Buffer(publicKey.slice(1, 33).buffer));    // x-coord
     attData.set(-3, new Buffer(publicKey.slice(33, 65).buffer));    // y-coord
-    const attCBOR = new Uint8Array(CBOR.encode(attData));
+    const attCBOR = new Uint8Array(CBOR.encodeCanonical(attData));
 
     const authenticatorData = new Uint8Array(   withoutAttestation.length
                                                 + aaguid.length

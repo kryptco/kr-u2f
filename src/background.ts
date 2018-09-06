@@ -188,13 +188,13 @@ async function handle_webauthn_register(msg: any,
 
     let attestationObject: ArrayBuffer;
     if (pkOptions.attestation == null || pkOptions.attestation === 'none') {
-        attestationObject = CBOR.encode({
+        attestationObject = CBOR.encodeCanonical({
             attStmt: {},
             authData: new Buffer(authenticatorData.buffer),
             fmt: 'none',
         }).buffer;
     } else {
-        attestationObject = CBOR.encode({
+        attestationObject = CBOR.encodeCanonical({
             attStmt: {
                 sig: new Buffer(u2fRegisterResponse.signature.buffer),
                 x5c: [new Buffer(u2fRegisterResponse.attestation_certificate.buffer)],
