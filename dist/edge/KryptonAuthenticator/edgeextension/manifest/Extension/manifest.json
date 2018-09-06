@@ -1,0 +1,62 @@
+{
+    "author": "krypt.co",
+    "description": "",
+    "background": {
+        "page": "background.html",
+        "persistent": true
+    },
+    "browser_action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "128": "img/krypton_icon.png",
+            "40": "img/krypton_icon.png"
+        },
+        "default_title": "Krypton Authenticator"
+    },
+    "content_scripts": [
+        {
+            "all_frames": true,
+            "matches": [
+                "https://*/*"
+            ],
+			"exclude_matches": ["https://*/*.xml"],
+            "run_at": "document_start",
+            "js": [
+                "js/content_script.js"
+            ],
+            "css": [
+                "content_script.css"
+            ]
+        }
+    ],
+    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+    "externally_connectable": {
+        "ids": [],
+        "accepts_tls_channel_id": true
+    },
+    "icons": {
+        "128": "img/krypton_icon.png",
+        "54": "img/krypton_icon.png",
+        "270": "img/krypton_icon.png",
+        "90": "img/krypton_icon.png"
+    },
+    "manifest_version": 2,
+    "minimum_edge_version": "33.14281.1000.0",
+    "name": "Krypton Authenticator",
+    "permissions": [
+        "tabs",
+        "storage",
+        "https://*/*",
+        "http://*/*",
+        "webRequest",
+        "webRequestBlocking"
+    ],
+    "version": "1.0.12",
+    "web_accessible_resources": [
+        "js/inject_webauthn.js",
+        "img/*"
+    ],
+    "-ms-preload": {
+        "backgroundScript": "backgroundScriptsAPIBridge.js"
+    }
+}

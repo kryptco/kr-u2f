@@ -531,29 +531,64 @@ async function sendToActiveTab(s: string) {
     }
 }
 
+const UA_WINDOWS_CHROME =
+    'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.2526.73 Safari/537.36';
+function make_ua_spoofer(userAgent: string, referers?: [string], origins?: [string]) {
+    return function user_agent_handler(details) {
+        if (referers) {
+            if (!details.requestHeaders.some(
+                (header) => header.name === 'Referer' && referers.indexOf(header.value) >= 0)) {
+                return;
+            }
+        }
+
+        if (origins) {
+            if (!details.requestHeaders.some(
+                (header) => header.name === 'Origin' && origins.indexOf(header.value) >= 0)) {
+                return;
+            }
+        }
+
+        for (const header of details.requestHeaders) {
+            if (header.name === 'User-Agent') {
+                /* tslint:disable */
+                header.value = userAgent;
+                /* tslint:enable */
+                break;
+            }
+        }
+
+        return { requestHeaders: details.requestHeaders };
+    };
+}
+
+const fbFilterCatchAll = [
+    '*://*.facebook.com/*',
+    '*://*.facebook.net/*',
+    '*://*.fbcdn.net/*',
+];
+const fbFilterSpecific = [
+    '*://www.facebook.com/checkpoint/?next',
+];
+
 switch (detectBrowser()) {
     case Browser.firefox:
-        function user_agent_handler(details) {
-            for (const header of details.requestHeaders) {
-                if (header.name === 'User-Agent') {
-                    // Replace with user-agent string for Chrome 68 on Windows 10
-                    /* tslint:disable */
-                    header.value = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.2526.73 Safari/537.36';
-                    /* tslint:enable */
-                    break;
-                }
-            }
-
-            return { requestHeaders: details.requestHeaders };
-        }
-        const userAgentSpoofFilter = ['*://*.facebook.com/*',
-                                      '*://*.facebook.net/*',
-                                      '*://*.fbcdn.net/*',
-                                     ];
-        browser.webRequest.onBeforeSendHeaders.addListener(user_agent_handler,
-                                                   {urls: userAgentSpoofFilter},
+        browser.webRequest.onBeforeSendHeaders.addListener(make_ua_spoofer(UA_WINDOWS_CHROME),
+                                                   {urls: fbFilterCatchAll},
                                                    ['blocking', 'requestHeaders'],
                                                   );
+        break;
+    case Browser.edge:
+        browser.webRequest.onBeforeSendHeaders.addListener(
+            make_ua_spoofer(UA_WINDOWS_CHROME, ['https://www.facebook.com/checkpoint/?next']),
+            { urls: fbFilterCatchAll },
+            ['blocking', 'requestHeaders'],
+        );
+        browser.webRequest.onBeforeSendHeaders.addListener(
+            make_ua_spoofer(UA_WINDOWS_CHROME, null),
+            { urls: fbFilterSpecific },
+            ['blocking', 'requestHeaders'],
+        );
         break;
 }
 

@@ -26,6 +26,8 @@ async function init() {
         return;
     }
     switch (detectBrowser()) {
+        //  use Edge storage polyfill
+        case Browser.edge:
         case Browser.chrome: {
             getImpl = function(item: string) {
                 return new Promise(async (res, rej) => {

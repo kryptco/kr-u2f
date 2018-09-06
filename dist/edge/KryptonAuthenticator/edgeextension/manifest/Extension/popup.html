@@ -1,0 +1,185 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta charset="UTF-8"/>
+  <script type="text/javascript" src="js/popup.js"></script>
+  <link rel="stylesheet" type="text/css" href="popup.css">
+</head>
+
+<body>
+  <div class='screen' id='launch'>
+    <div class="shield">
+      <img src="img/shield.png" />
+    </div>
+  </div>
+  <div id='pairScreen' class='screen'>
+    <div class="navbar">
+      <img src="img/shield.png" />
+    </div>
+    <div class="onboarding">
+      <div class="setup" id="setup">
+        <div class="step">
+          <div class="title">
+            <p>1. Install Krypton on your phone</p>
+          </div>
+          <div class="subtitle">
+            <p>Go to this link on your phone</p>
+            <!-- <p class="or">or</p> -->
+          </div>
+
+          <div class="download">
+            <a href="https://get.krypt.co" target="_blank">
+              get.krypt.co
+            </a>
+          </div>
+          <div class="textlink">
+
+          </div>
+          <div class="app-links">
+            <a href="https://appsto.re/us/weWofb.i" target="_blank">
+              <img class="apple-store" src="img/apple_app_store_badge.svg">
+            </a>
+            <a href="https://play.google.com/store/apps/details?id=co.krypt.kryptonite&amp;pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1" target="_blank">
+              <img class="play-store" src="img/android_play_badge.png">
+            </a>  
+          </div>
+        </div>
+        <div class="step">
+          <div class="title">
+            <p>2. Scan this QR code with Krypton</p>
+          </div>
+          <div id='pairingQRContainer'>
+            <div id='pairingQR'></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id='accounts' class='screen'>
+    <div class="navbar">
+      <img src="img/shield.png" />
+    </div>
+    <div class="paired-with">
+      <p>Paired with
+        <span class="tokenName">iPhone</span>
+      </p>
+      <button id='unpairButton'>Unpair</button>
+    </div>
+
+    <h2 id="tutorial-title">Enable Krypton in 3 Steps</h2>
+    <div class="tutorial">
+      <h3><span class="number"></span> Go to your account settings</h3>
+      <h3><span class="number"></span> Enable two-step verification</h3>
+      <h3><span class="number"></span> Add a security key</h3>
+    </div>
+
+    <div class="grid">
+      <a href='https://myaccount.google.com/signinoptions/two-step-verification' target='_blank' rel="noopener noreferrer">
+        <div class="cell unsecured" id="g">
+          <img class='icon' src='img/logos/google.png' />
+          <span class='name'>
+            Google
+          </span>
+          <span class='status secure'>SECURED</span>
+          <span class='status fix'>NOT SECURED</span>
+        </div>
+      </a>
+
+      <a href='https://www.facebook.com/security/2fac/settings/' target='_blank' rel="noopener noreferrer">
+        <div class="cell unsecured" id="f">
+          <img class='icon' src='img/logos/facebook.png' />
+          <span class='name'>
+            Facebook
+          </span>
+          <span class='status secure'>SECURED</span>
+          <span class='status fix'>NOT SECURED</span>
+        </div>
+      </a>
+      <a href='https://twitter.com/settings/account/login_verification' target='_blank' rel='noopener noreferrer'>
+        <div class="cell unsecured" id="tw">
+
+          <img class='icon' src='img/logos/twitter.png' />
+          <span class='name'>
+            Twitter
+          </span>
+          <span class='status secure'>SECURED</span>
+          <span class='status fix'>NOT SECURED</span>
+        </div>
+      </a>
+      <a href='https://www.dropbox.com/account/security' target='_blank' rel='noopener noreferrer'>
+        <div class="cell unsecured" id="d">
+
+          <img class='icon' src='img/logos/dropbox.png' />
+          <span class='name'>
+            Dropbox
+          </span>
+          <span class='status secure'>SECURED</span>
+          <span class='status fix'>NOT SECURED</span>
+        </div>
+      </a>
+      <a href='https://github.com/settings/two_factor_authentication/configure' target='_blank' rel='noopener noreferrer'>
+        <div class="cell unsecured" id="gh">
+
+          <img class='icon' src='img/logos/github.png' />
+          <span class='name'>
+            GitHub
+          </span>
+          <span class='status secure'>SECURED</span>
+          <span class='status fix'>NOT SECURED</span>
+        </div>
+      </a>
+      <a href='https://gitlab.com/profile/two_factor_auth' target='_blank' rel='noopener noreferrer'>
+        <div class="cell unsecured" id="gl">
+
+          <img class='icon' src='img/logos/gitlab.png' />
+          <span class='name'>
+            Gitlab
+          </span>
+          <span class='status secure'>SECURED</span>
+          <span class='status fix'>NOT SECURED</span>
+        </div>
+      </a>
+      <a href='https://bitbucket.org/account' target='_blank' rel='noopener noreferrer'>
+        <div class="cell unsecured" id="b">
+
+          <img class='icon' src='img/logos/bitbucket.jpg' />
+          <span class='name'>
+            Bitbucket
+          </span>
+          <span class='status secure'>SECURED</span>
+          <span class='status fix'>NOT SECURED</span>
+        </div>
+      </a>
+      <a href='https://dashboard.stripe.com/settings/user' target='_blank' rel='noopener noreferrer'>
+        <div class="cell unsecured" id="s">
+
+          <img class='icon' src='img/logos/stripe.png' />
+          <span class='name'>
+            Stripe
+          </span>
+          <span class='status secure'>SECURED</span>
+          <span class='status fix'>NOT SECURED</span>
+        </div>
+      </a>
+      <a href='https://sentry.io/account/settings/2fa/u2f/' target='_blank' rel='noopener noreferrer'>
+        <div class="cell unsecured" id="sy">
+
+          <img class='icon' src='img/logos/sentry.png' />
+          <span class='name'>
+            Sentry
+          </span>
+          <span class='status secure'>SECURED</span>
+          <span class='status fix'>NOT SECURED</span>
+        </div>
+      </a>
+    </div>
+
+    
+    <div class="footer">
+        <div class="version-label">v<span class="extension-version"></span></div>
+        <div class="made-by">made with &hearts; by <a href="https://krypt.co">krypt.co</a></div>    
+    </div>
+  </div>
+</body>
+
+</html>

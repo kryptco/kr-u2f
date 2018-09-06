@@ -11,6 +11,12 @@ module.exports = {
     'chromium/js/content_script.js': './src/content_script_chromium.ts',
     'chromium/js/background.js': './src/background.ts',
 
+    'edge/KryptonAuthenticator/edgeextension/manifest/Extension/js/babel_polyfill.js': 'babel-polyfill',
+    'edge/KryptonAuthenticator/edgeextension/manifest/Extension/js/popup.js': ['babel-polyfill', './src/popup.ts'],
+    'edge/KryptonAuthenticator/edgeextension/manifest/Extension/js/inject.js': ['babel-polyfill', './src/inject_edge.ts'],
+    'edge/KryptonAuthenticator/edgeextension/manifest/Extension/js/content_script.js': ['babel-polyfill', './src/content_script_edge.ts'],
+    'edge/KryptonAuthenticator/edgeextension/manifest/Extension/js/background.js': ['reflect-metadata', './src/background.ts'],
+
     'firefox/js/babel_polyfill.js': 'babel-polyfill',
     'firefox/js/popup.js': ['babel-polyfill', './src/popup.ts'],
     'firefox/js/content_script.js': './src/content_script_firefox.ts',

@@ -1,14 +1,18 @@
 // Cross-browser extension storage
 
-import {isChrome, isFirefox, isSafari} from './browser_detect';
+import {isChrome, isEdge, isFirefox, isSafari} from './browser_detect';
 
 export enum Browser {
     chrome = 'chrome',
     firefox = 'firefox',
     safari = 'safari',
+    edge = 'edge',
 }
 
 export function browser(): Browser {
+    if (isEdge()) {
+        return Browser.edge;
+    }
     if (isFirefox()) {
         return Browser.firefox;
     }

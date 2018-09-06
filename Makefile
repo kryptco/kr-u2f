@@ -6,10 +6,12 @@ build-content:
 	yarn run sass src/styles/content_script.scss:dist/chromium/content_script.css
 	yarn run sass src/styles/content_script.scss:dist/firefox/content_script.css
 	yarn run sass src/styles/content_script.scss:dist/KryptonAuthenticator.safariextension/content_script.css
+	yarn run sass src/styles/content_script.scss:dist/edge/KryptonAuthenticator/edgeextension/manifest/Extension/content_script.css
 build-popup:
 	yarn run sass src/styles/popup.scss:dist/chromium/popup.css
 	yarn run sass src/styles/popup.scss:dist/firefox/popup.css
 	yarn run sass src/styles/popup.scss:dist/KryptonAuthenticator.safariextension/popup.css
+	yarn run sass src/styles/popup.scss:dist/edge/KryptonAuthenticator/edgeextension/manifest/Extension/popup.css
 	
 watch-content:
 	yarn run sass --watch src/styles/content_script.scss:dist/chromium/content_script.css &

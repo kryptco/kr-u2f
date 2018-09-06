@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Package 
+	xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+	xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+	xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+	IgnorableNamespaces="uap3">
+	<Identity 
+		Name="krypt.co.KryptonAuthenticator" 
+		Publisher="CN=9F81D094-B845-4C52-9BC6-4850CD0A72E5" 
+		Version="1.0.12.0" />
+
+	<Properties> 
+		<DisplayName>Krypton Authenticator</DisplayName> 
+		<PublisherDisplayName>krypt.co</PublisherDisplayName>
+		<Logo>Assets\icon_50.png</Logo> 
+	</Properties> 
+
+	<Dependencies> 
+		<TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.15063.0" MaxVersionTested="10.0.15063.0" />
+	</Dependencies> 
+
+	<Resources>
+		<Resource Language="en-us" />
+		<Resource uap:Scale="200"/>
+	</Resources> 
+
+	<Applications> 
+		<Application Id="App">
+			<uap:VisualElements
+				AppListEntry="none"
+				DisplayName="Krypton Authenticator"
+				Square150x150Logo="Assets\icon_150.png"
+        		Square44x44Logo="Assets\icon_44.png"
+				Description="Companion extension to the Krypton Authenticator phone application."
+				BackgroundColor="transparent">
+			</uap:VisualElements>
+			<Extensions>
+				<uap3:Extension Category="windows.appExtension">
+					<uap3:AppExtension
+						Name="com.microsoft.edge.extension"
+						Id="EdgeExtension"
+						PublicFolder="Extension"
+						DisplayName="Krypton Authenticator">
+						<uap3:Properties>
+							<Capabilities>
+								<Capability Name="websiteInfo"/>
+								<Capability Name="browserStorage"/>
+								<Capability Name="websiteContent"/>
+								<Capability Name="browserWebRequest"/>
+							</Capabilities>
+						</uap3:Properties>
+					</uap3:AppExtension>
+				</uap3:Extension>
+			</Extensions>
+		</Application> 
+	</Applications>
+</Package>

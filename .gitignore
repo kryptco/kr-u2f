@@ -1,5 +1,6 @@
 dist/chromium/js
 dist/firefox/js
+dist/edge/KryptonAuthenticator/edgeextension/manifest/Extension/js/
 node_modules
 target
 KryptonU2F.safariextension/js
@@ -7,7 +8,11 @@ KryptonU2F.safariextension/js
 *.safariextz
 dist/chromium/*.css
 dist/firefox/*.css
+dist/edge/KryptonAuthenticator/edgeextension/manifest/Extension/*.css
 dist/chromium/*.css.map
 dist/firefox/*.css.map
+dist/edge/KryptonAuthenticator/edgeextension/manifest/Extension/*.css.map
+dist/Krypton.uwa
+dist/edge/KryptonAuthenticator/edgeextension/krypton.appx
 .sass-cache/
 *.DS_Store
