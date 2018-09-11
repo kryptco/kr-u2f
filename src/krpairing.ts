@@ -162,8 +162,12 @@ export class Pairing {
         }
 
         this.polling = true;
-        while (Date.now() < this.pollUntil) {
-            await this.recv(onMessage);
+        try {
+            while (Date.now() < this.pollUntil) {
+                await this.recv(onMessage);
+            }
+        } catch (e) {
+            console.error(e);
         }
         this.polling = false;
     }
