@@ -12,7 +12,7 @@
   "content_scripts": [
     {
       "all_frames": true,
-      "matches": ["https://*/*"],
+      "matches": ["https://*/*", "http://localhost/*", "http://*.localhost/*", "http://127.0.0.1/*", "http://[::1]/*"],
       "run_at": "document_start",
       "js": ["js/content_script.js"],
       "css": ["content_script.css"]
