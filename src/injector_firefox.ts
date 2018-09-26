@@ -117,6 +117,9 @@ export function injectU2fInterface() {
         },
     );
     Object.defineProperty(window['wrappedJSObject'], 'u2f', {
+        //  setting configurable prevents AWS console crash
+        configurable: true,
+        enumerable: false,
         value: u2f,
         writable: false,
     });
