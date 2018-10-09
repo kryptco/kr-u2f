@@ -1,80 +1,7 @@
-#krypton-toast {
-    margin-left: auto;
-    margin-right: 5px;
-    margin-top: 5px;
-    position: fixed;
-    right: 0;
-    top: 0;
-    z-index: 9999;
-    color: #000000;
-    background-color: rgba(255, 255, 255, 0.66);
-    padding: 16px;
-}
-
-#krypton-toast.pending {
- 
-}
-
-#fill-shield {
-    filter: url(#fancy-goo);
-}
-
-#fill-shield.pending #progress rect {
-    fill: #FFD149;
-}
-
-#fill-shield.done #progress rect {
-    fill: rgb(72, 255, 154);
-}
-
-#fill-shield.done #progress {
-    transition: transform 5s linear;
-    transform: translateY(120px);
-}
-
-#fill-shield #progress rect {
-    y: 0;
-    fill: whitesmoke;
-    animation: blobbing 1s ease-in-out infinite;
-}
-
-#fill-shield #progress rect:nth-child(1) {
-    animation-delay: .1s;
-}
-
-#fill-shield #progress rect:nth-child(2) {
-    animation-delay: 0;
-}
-
-#fill-shield #progress rect:nth-child(3) {
-    animation-delay: .2s;
-}
-
-#fill-shield #progress rect:nth-child(4) {
-    animation-delay: .4s;
-}
-
-#fill-shield #progress rect:nth-child(5) {
-    animation-delay: 0;
-}
-
-#fill-shield #progress rect:nth-child(6) {
-    animation-delay: .2s;
-}
-
-#fill-shield #progress rect:nth-child(7) {
-    animation-delay: .1s;
-}
-
 body {
-    --blue-bg: #E5EBF1;
-    --blue-fg: #6D7D92;
-    --fg: #FFFFFF;
-    --qr-fg: #004022;
-    --qr-fg-halfalpha: #002a4f80;
-    --qr-fg-zeroalpha: #002a4f00;
-    /* --bg: #00C86A; */
-    --bg: #5bc894;
+    --kr-qr-fg: #004022;
+    --kr-qr-fg-halfalpha: #002a4f80;
+    --kr-qr-fg-zeroalpha: #002a4f00;
 }
 
 .kr-pulse {
@@ -83,26 +10,26 @@ body {
 
 @-webkit-keyframes pulse {
     0% {
-        -webkit-box-shadow: 0 0 0 0 var(--qr-fg-halfalpha);
+        -webkit-box-shadow: 0 0 0 0 var(--kr-qr-fg-halfalpha);
     }
     70% {
-        -webkit-box-shadow: 0 0 0 10px var(--qr-fg-zeroalpha);
+        -webkit-box-shadow: 0 0 0 10px var(--kr-qr-fg-zeroalpha);
     }
     100% {
-        -webkit-box-shadow: 0 0 0 0 var(--qr-fg-zeroalpha);
+        -webkit-box-shadow: 0 0 0 0 var(--kr-qr-fg-zeroalpha);
     }
 }
 
 @keyframes pulse {
     0% {
-        -moz-box-shadow: 0 0 0 0 var(--qr-fg-halfalpha);
-        box-shadow: 0 0 0 0 var(--qr-fg-halfalpha);
+        -moz-box-shadow: 0 0 0 0 var(--kr-qr-fg-halfalpha);
+        box-shadow: 0 0 0 0 var(--kr-qr-fg-halfalpha);
     }
     70% {
-        -moz-box-shadow: 0 0 0 10px var(--qr-fg-zeroalpha);
-        box-shadow: 0 0 0 10px var(--qr-fg-zeroalpha);
+        -moz-box-shadow: 0 0 0 10px var(--kr-qr-fg-zeroalpha);
+        box-shadow: 0 0 0 10px var(--kr-qr-fg-zeroalpha);
     }
     100% {
-        -moz-box-shadow: 0 0 0 0 var(--qr-fg-zeroalpha);
-        box-shadow: 0 0 0 0 var(--qr-fg-zeroalpha);
+        -moz-box-shadow: 0 0 0 0 var(--kr-qr-fg-zeroalpha);
+        box-shadow: 0 0 0 0 var(--kr-qr-fg-zeroalpha);
     }  }
