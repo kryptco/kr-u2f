@@ -8,6 +8,7 @@
     {
       "all_frames": true,
       "matches": ["https://*/*"],
+      "exclude_matches": ["https://*/*.xml"],
       "run_at": "document_start",
       "js": ["js/content_script.js"],
       "css": ["content_script.css"]
