@@ -5,7 +5,7 @@
 	<key>Author</key>
 	<string>KryptCo, Inc.</string>
 	<key>Builder Version</key>
-	<string>14606.1.32</string>
+	<string>14606.1.36.1.9</string>
 	<key>CFBundleDisplayName</key>
 	<string>Krypton Authenticator</string>
 	<key>CFBundleIdentifier</key>
@@ -57,6 +57,10 @@
 	</array>
 	<key>Content</key>
 	<dict>
+		<key>Blacklist</key>
+		<array>
+			<string>https://*/*.xml</string>
+		</array>
 		<key>Scripts</key>
 		<dict>
 			<key>Start</key>
