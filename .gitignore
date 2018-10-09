@@ -10,3 +10,4 @@ dist/firefox/*.css
 dist/chromium/*.css.map
 dist/firefox/*.css.map
 .sass-cache/
+*.DS_Store
