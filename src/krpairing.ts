@@ -148,10 +148,14 @@ export class Pairing {
         const msgs = await receive(this);
         if (msgs.Messages && msgs.Messages.length > 0) {
             for (const msg of msgs.Messages) {
-                onMessage(
-                    this,
-                    from_base64(msg.Body),
-                );
+                try {
+                    onMessage(
+                        this,
+                        from_base64(msg.Body),
+                    );
+                } catch (e) {
+                    console.error(e);
+                }
             }
         }
     }
