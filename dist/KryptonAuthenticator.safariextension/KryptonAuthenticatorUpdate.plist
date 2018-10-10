@@ -10,9 +10,9 @@
        <key>Developer Identifier</key>
        <string>W7AMYM5LPN</string>
        <key>CFBundleVersion</key>
-       <string>1.0.12</string>
+       <string>1.0.13</string>
        <key>CFBundleShortVersionString</key>
-       <string>1.0.12</string>
+       <string>1.0.13</string>
        <key>URL</key>
        <string>https://s3.amazonaws.com/safari.bin.krypt.co/KryptonAuthenticator.safariextz</string>
      </dict>
