@@ -43,3 +43,7 @@ zip: zip-chromium zip-firefox zip-code
 
 
 build-dist: build zip
+
+deploy-safari:
+	s3cmd put --acl-public --region=us-east-1 --mime-type=application/octet-stream dist/KryptonAuthenticator.safariextz s3://safari.bin.krypt.co
+	s3cmd put --acl-public --region=us-east-1 dist/KryptonAuthenticator.safariextension/KryptonAuthenticatorUpdate.plist s3://safari.bin.krypt.co
