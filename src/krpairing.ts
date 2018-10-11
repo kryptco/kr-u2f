@@ -6,6 +6,7 @@ import { crypto_box_easy,
          crypto_box_open_easy,
          crypto_box_seal_open,
          crypto_hash_sha256,
+         equals,
          from_base64,
          randombytes_buf,
          to_base64,
@@ -190,7 +191,7 @@ export class Pairing {
             if (!unwrappedKey) {
                 throw new Error('Unwrap key failed');
             }
-            if (this.enclavePublicKey && unwrappedKey !== this.enclavePublicKey) {
+            if (this.enclavePublicKey && !equals(unwrappedKey, this.enclavePublicKey)) {
                 throw new Error('Already sent confirmation for a different key');
             }
 
