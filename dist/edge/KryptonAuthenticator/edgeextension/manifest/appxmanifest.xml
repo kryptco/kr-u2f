@@ -7,7 +7,7 @@
 	<Identity 
 		Name="krypt.co.KryptonAuthenticator" 
 		Publisher="CN=9F81D094-B845-4C52-9BC6-4850CD0A72E5" 
-		Version="1.0.13.0" />
+		Version="1.0.14.0" />
 
 	<Properties> 
 		<DisplayName>Krypton Authenticator</DisplayName> 
