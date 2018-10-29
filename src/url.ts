@@ -10,15 +10,12 @@
  * @return {?string} Scheme and origin part if url parses
  */
 export function getOriginFromUrl(url: string): string | null {
-    const re = new RegExp('^(https?://)[^/]*/?');
+    const re = new RegExp('^(https?://)[^/]+/?');
     const originarray = re.exec(url);
     if (originarray == null) { return null; }
     let origin = originarray[0];
     while (origin.charAt(origin.length - 1) === '/') {
         origin = origin.substring(0, origin.length - 1);
-    }
-    if (origin === 'http:' || origin === 'https:') {
-        return null;
     }
     return origin;
 }

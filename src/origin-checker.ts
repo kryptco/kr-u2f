@@ -5,8 +5,6 @@
 // https://developers.google.com/open-source/licenses/bsd
 
 import { int } from 'aws-sdk/clients/datapipeline';
-import { resolveCname } from 'dns';
-import { resolve } from 'url';
 
 import {ETLD_NAMES_LIST} from './etld_names_list.js';
 import {getOriginFromUrl} from './url';
@@ -15,11 +13,11 @@ export const BAD_APPID = 2;
 
 /**
  * FIDO AppId (v1.2) 3.1.2.3 & 3.1.2.14
- * @param origin
+ * @param facet
  * @param appId
  */
-function checkCanOriginClaimAppId(origin: string, appId: string): boolean {
-    if (appId === origin) {
+function checkCanFacetClaimAppId(facet: string, appId: string): boolean {
+    if (appId === facet) {
         return true;
     }
     const appIdOrigin = getOriginFromUrl(appId);
@@ -27,13 +25,13 @@ function checkCanOriginClaimAppId(origin: string, appId: string): boolean {
         return false;
     }
     const appIdLspl = getLeastSpecificPrivateLabel(appIdOrigin);
-    const originLspl = getLeastSpecificPrivateLabel(origin);
-    if (originLspl === appIdLspl) {
+    const facetLspl = getLeastSpecificPrivateLabel(facet);
+    if (facetLspl === appIdLspl) {
         return true;
     }
 
     // FIDO-AppID-Redirect-Authorized header handling not implemented, so we allow an exception for Google (gstatic.com)
-    if (originLspl === 'google.com') {
+    if (facetLspl === 'google.com') {
         return appIdLspl === 'gstatic.com';
     }
     return false;
@@ -197,7 +195,6 @@ async function getTrustedFacetsFromAppId(appId: string, remainingRetryAttempts: 
     // Fetch TrustedFacetsList
     {
         const text = fetcher(appId);
-
         const facets = await text.then(getOriginsFromJson, async function(rc_) {
             const rc = (rc_);
             console.error('fetching ' + appId + ' failed: ' + rc);
@@ -211,23 +208,29 @@ async function getTrustedFacetsFromAppId(appId: string, remainingRetryAttempts: 
 
         // FIDO AppID & Facet (v1.2) 3.1.2.14
         return facets.map((facet) => facet.toLowerCase())
-                     .filter((facet) => checkCanOriginClaimAppId(facet, appId));
+                     .filter((facet) => checkCanFacetClaimAppId(facet, appId));
     }
 }
 
 /**
- * Resolve or reject based on whether the given origin and appId are valid
- * @param origin the origin of the request
+ * Resolve or reject based on whether the given facetId and appId are valid
+ * @param facetId the origin of the request
  * @param appId the URL to the Trusted Facets list
  */
-export async function verifyU2fAppId(origin: string, appId: string, fetcher): Promise<void> {
-    if (origin) {
-        origin = origin.toLowerCase();
-    }
+export async function verifyU2fAppId(facetId: string, appId: string, fetcher): Promise<void> {
+    // Since origins are to be compared in lowercase,
+    // lowercase the facetId and the origin component of the AppID.
     if (appId) {
-        appId = appId.toLowerCase();
+        const appIdOrigin = getOriginFromUrl(appId);
+        if (appIdOrigin == null) {
+            return Promise.reject("appId '" + appId + "' does not have a valid origin");
+        }
+        const appIdNonOrigin = appId.substring(appIdOrigin.length, appId.length);
+        appId = appIdOrigin.toLowerCase() + appIdNonOrigin;
     }
-    if (appId === origin) {
+    facetId = facetId.toLowerCase();
+
+    if (appId === facetId) {
         // FIDO AppID & Facet (v1.2) 3.1.2.1
         return Promise.resolve();
     }
@@ -237,16 +240,16 @@ export async function verifyU2fAppId(origin: string, appId: string, fetcher): Pr
         return Promise.resolve();
     }
 
-    // FIDO AppID & Facev (v1.2) 3.1.2.3
-    if (!checkCanOriginClaimAppId(origin, appId)) {
-        return Promise.reject('origin cannot claim given appId ' + appId);
+    // FIDO AppID & Facet (v1.2) 3.1.2.3
+    if (!checkCanFacetClaimAppId(facetId, appId)) {
+        return Promise.reject('FacetID cannot claim given AppID ' + appId);
     }
 
     const trustedFacets = await getTrustedFacetsFromAppId(appId, 5, fetcher);
 
-    if (trustedFacets.indexOf(origin) === -1) {
+    if (trustedFacets.indexOf(facetId) === -1) {
         // FIDO AppId & Facet (v1.2) 3.1.2.16
-        return Promise.reject('Trusted Facets list does not include the request origin ' + origin);
+        return Promise.reject('Trusted Facets list does not include the requesting FacetID ' + facetId);
     }
 
     return Promise.resolve();
