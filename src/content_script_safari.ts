@@ -19,7 +19,7 @@ function forwardMessageToExtension(e) {
             }
             w = w.parent;
         }
-        (safari.self as any).tab.dispatchMessage(type, message);
+        (safari as any).extension.dispatchMessage(type, message);
     }
 }
 
@@ -37,7 +37,7 @@ function forwardMessageFromExtension(e) {
 
 const s = document.createElement('script');
 s.type = 'text/javascript';
-s.src = safari.extension.baseURI + 'js/inject.js';
+s.src = safari.extension.baseURI + 'inject.js';
 document.documentElement.appendChild(s);
 
 window.addEventListener('message', forwardMessageToExtension, true);
