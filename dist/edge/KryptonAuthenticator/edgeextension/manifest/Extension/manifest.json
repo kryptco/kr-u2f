@@ -51,7 +51,7 @@
         "webRequest",
         "webRequestBlocking"
     ],
-    "version": "1.0.15",
+    "version": "1.0.16",
     "web_accessible_resources": [
         "js/inject_webauthn.js",
         "img/*"
