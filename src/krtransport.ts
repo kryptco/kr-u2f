@@ -97,10 +97,10 @@ async function sendSNS(pairing: Pairing, message: string) {
     //     })
     // gcmPayload, _ := json.Marshal(
     //     map[string]interface{}{
+    //         "priority":         "high",
+    //         "time_to_live":     0,
+    //         "delay_while_idle": false,
     //         "data": map[string]interface{}{
-    //             "priority":         "high",
-    //             "time_to_live":     0,
-    //             "delay_while_idle": false,
     //             "message":          requestCiphertext,
     //             "queue":            sqsQueueName,
     //         },
@@ -125,12 +125,12 @@ async function sendSNS(pairing: Pairing, message: string) {
             APNS_SANDBOX: apnsPayload,
             GCM: await stringify({
                 data: {
-                    delay_while_idle: false,
                     message,
-                    priority: 'high',
                     queue: await pairing.sendQueueName(),
-                    time_to_live: 0,
                 },
+                delay_while_idle: false,
+                priority: 'high',
+                time_to_live: 0,
             }),
         }),
         MessageStructure: 'json',
