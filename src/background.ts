@@ -78,6 +78,8 @@ function getFetcher(sender: chrome.runtime.MessageSender) {
     switch (detectBrowser()) {
         case Browser.safari:
             return fetchAppIdUrl;
+        case Browser.chrome:
+            return fetchAppIdUrl;
         default:
             return function fetch(url: string): Promise<string> {
                 return new Promise(function(resolve, reject) {
