@@ -161,9 +161,6 @@ async function handle_webauthn_register(msg: any,
         clientExtensions: {},
         hashAlgorithm: 'SHA-256',
         origin,
-        tokenBinding: {
-            status: 'not-supported',
-        },
         type: 'webauthn.create',
     });
     const clientDataB64 = await to_base64_url_nopad(clientData);
