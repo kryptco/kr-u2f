@@ -9,7 +9,7 @@ import { webauthnParse, webauthnStringify } from './krjson';
         get: navigator.credentials.get,
     };
     const krCredentials: any = {};
-    krCredentials.create = async function(options: CredentialCreationOptions): Promise<Credential | null> {
+    krCredentials.create = async function(options: CredentialCreationOptions): Promise<PublicKeyCredential | null> {
         const requestId = ++webauthnReqCounter;
         const registerRequest = {
             options: webauthnStringify(options),
@@ -28,7 +28,7 @@ import { webauthnParse, webauthnStringify } from './krjson';
         credential.__proto__ = window['PublicKeyCredential'].prototype;
         return credential;
     };
-    krCredentials.get = async function(options?: CredentialRequestOptions): Promise<Credential | null | any> {
+    krCredentials.get = async function(options?: CredentialRequestOptions): Promise<PublicKeyCredential | null | any> {
         const requestId = ++webauthnReqCounter;
         const cb = new Promise<any>((res, rej) => {
             webauthnCallbacks[requestId] = res;
@@ -52,7 +52,7 @@ import { webauthnParse, webauthnStringify } from './krjson';
     //  TODO: abort other backends when one finishes using the AbortController API
     //  https://dom.spec.whatwg.org/#aborting-ongoing-activities
     const hybridCredentials = {
-        async create(options: CredentialCreationOptions): Promise<Credential | null> {
+        async create(options: CredentialCreationOptions): Promise<PublicKeyCredential | null> {
             const credentialBackends = [
                 krCredentials,
             ];
@@ -61,7 +61,7 @@ import { webauthnParse, webauthnStringify } from './krjson';
             }
             return Promise.race(credentialBackends.map((b) => b.create.bind(navigator.credentials)(options)));
         },
-        async get(options?: CredentialRequestOptions): Promise<Credential | null | any> {
+        async get(options?: CredentialRequestOptions): Promise<PublicKeyCredential | null | any> {
             const credentialBackends = [
                 krCredentials,
             ];

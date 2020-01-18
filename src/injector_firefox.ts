@@ -128,7 +128,7 @@ export function injectU2fInterface() {
     });
 
     const krCredentials = {
-        create(options: CredentialCreationOptions): Promise<Credential | null> {
+        create(options: CredentialCreationOptions): Promise<PublicKeyCredential | null> {
             const u2f = window['wrappedJSObject']['u2f'];
             if (!u2f.listenerAdded) {
                 window.addEventListener('message', listener);
@@ -164,7 +164,7 @@ export function injectU2fInterface() {
             }
         },
 
-        get(options?: CredentialRequestOptions): Promise<Credential | null | any> {
+        get(options?: CredentialRequestOptions): Promise<PublicKeyCredential | null | any> {
             const u2f = window['wrappedJSObject']['u2f'];
             if (!u2f.listenerAdded) {
                 window.addEventListener('message', listener);
@@ -202,7 +202,7 @@ export function injectU2fInterface() {
     };
 
     const hybridCredentials = {
-        create: (options: CredentialCreationOptions): Promise<Credential | null> => {
+        create: (options: CredentialCreationOptions): Promise<PublicKeyCredential | null> => {
             const credentialBackends = new window['wrappedJSObject'].Array(
                 krCredentials,
                 navigator['wrappedJSObject'].credentials.native,
@@ -213,7 +213,7 @@ export function injectU2fInterface() {
                     .map(exportFunction((b) => b.create(options), window)),
             );
         },
-        get: (options?: CredentialRequestOptions): Promise<Credential | null | any> => {
+        get: (options?: CredentialRequestOptions): Promise<PublicKeyCredential | null | any> => {
             const credentialBackends = new window['wrappedJSObject'].Array(
                 krCredentials,
                 navigator['wrappedJSObject'].credentials.native,

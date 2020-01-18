@@ -116,7 +116,7 @@ import { webauthnParse, webauthnStringify } from './krjson';
     });
 
     const krCredentials = {
-        create(options: CredentialCreationOptions): Promise<Credential | null> {
+        create(options: CredentialCreationOptions): Promise<PublicKeyCredential | null> {
             const u2f = window['u2f'];
             if (!u2f.listenerAdded) {
                 window.addEventListener('message', listener);
@@ -147,7 +147,7 @@ import { webauthnParse, webauthnStringify } from './krjson';
             }
         },
 
-        get(options?: CredentialRequestOptions): Promise<Credential | null | any> {
+        get(options?: CredentialRequestOptions): Promise<PublicKeyCredential | null | any> {
             const u2f = window['u2f'];
             if (!u2f.listenerAdded) {
                 window.addEventListener('message', listener);
@@ -180,7 +180,7 @@ import { webauthnParse, webauthnStringify } from './krjson';
     };
 
     const hybridCredentials = {
-        create: (options: CredentialCreationOptions): Promise<Credential | null> => {
+        create: (options: CredentialCreationOptions): Promise<PublicKeyCredential | null> => {
             const credentialBackends = [
                 krCredentials,
                 navigator.credentials['native'],
@@ -191,7 +191,7 @@ import { webauthnParse, webauthnStringify } from './krjson';
                     .map((b) => b.create(options)),
             );
         },
-        get: (options?: CredentialRequestOptions): Promise<Credential | null | any> => {
+        get: (options?: CredentialRequestOptions): Promise<PublicKeyCredential | null | any> => {
             const credentialBackends = [
                 krCredentials,
                 navigator.credentials['native'],

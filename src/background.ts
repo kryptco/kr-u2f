@@ -160,10 +160,7 @@ async function handle_webauthn_register(msg: any,
         challenge: await to_base64_url_nopad(new Uint8Array(pkOptions.challenge as any)),
         clientExtensions: {},
         hashAlgorithm: 'SHA-256',
-        origin,
-        tokenBinding: {
-            status: 'not-supported',
-        },
+        origin,  
         type: 'webauthn.create',
     });
     const clientDataB64 = await to_base64_url_nopad(clientData);
@@ -206,7 +203,7 @@ async function handle_webauthn_register(msg: any,
         }).buffer;
     }
 
-    const credential: Credential = {
+    const credential: PublicKeyCredential = {
         id: await to_base64_url_nopad(u2fRegisterResponse.key_handle),
         rawId: u2fRegisterResponse.key_handle.buffer,
         response: {
@@ -364,7 +361,7 @@ async function handle_webauthn_sign(msg: any, sender: chrome.runtime.MessageSend
 
     const authenticatorData = await createAuthenticatorDataWithoutAttestation(matchingAppId, u2fSignResponse.counter);
 
-    const credential: Credential = {
+    const credential: PublicKeyCredential = {
         id: await to_base64_url_nopad(keyHandle),
         rawId: keyHandle.buffer,
         response: {
