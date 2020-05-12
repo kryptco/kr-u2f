@@ -15,6 +15,9 @@ Install [Krypton Authenticator](https://chrome.google.com/webstore/detail/madlgm
 ### Firefox
 Install [Krypton Authenticator](https://addons.mozilla.org/firefox/addon/krypton-authenticator/) from Firefox Add-ons.
 
+### Safari
+Install [Krypton Authenticator](https://apps.apple.com/us/app/krypton-authenticator-desktop/id1512484779?ls=1) from the Mac App Store.
+
 # Build Dependencies
 - [nodeJS](https://nodejs.org/en/download/)
 - [npm](https://www.npmjs.com/get-npm)
@@ -34,6 +37,9 @@ folder.
 
 ### Firefox
 Click on the three bars in the upper-right > Add-ons, in the resulting page click the gear in the upper-right > Install Add-on From File... , then select the `dist/firefox/manifest.json` file.
+
+### Safari
+Code coming soon...
 
 # CONTRIBUTING
 Check out `CONTRIBUTING.md`
