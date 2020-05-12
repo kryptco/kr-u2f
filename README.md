@@ -1,11 +1,10 @@
-# kr-u2f
-__kr-u2f__ brings Universal Second Factor (U2F) to the browser using keys
+# Krypton for Browsers (U2F + WebAuthN)
+Krypton brings Universal Second Factor (U2F) + WebAuthn to the browser using keys
 stored in the __Krypton__ ([iOS](https://github.com/kryptco/krypton-ios) or
 [Android](https://github.com/kryptco/krypton-android)) mobile app. _The
 private keys never leave the phone._
 
-Currently, kr-u2f supports Google Chrome and Mozilla Firefox. Safari and Edge support
-are coming soon!
+Supports Google Chrome, Mozilla Firefox, and Safari.
 
 # Install
 
