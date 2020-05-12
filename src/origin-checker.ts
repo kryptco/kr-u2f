@@ -48,7 +48,7 @@ export function checkIsRegistrableDomainSuffix(origin: string, hostSuffixString:
         return false;
     }
     const originUrl = new URL(origin);
-    const originalHost = originUrl.host;
+    const originalHost = originUrl.hostname;
     const host = hostSuffixString;
     if (host !== originalHost) {
         const hostLspl = getLeastSpecificPrivateLabel(host);
