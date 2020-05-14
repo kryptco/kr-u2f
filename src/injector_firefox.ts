@@ -150,11 +150,17 @@ export function injectU2fInterface() {
                 }, window));
                 window.postMessage(registerRequest, window.location.origin);
                 return cb.then(exportFunction((r) => {
-                    const webauthnResponse = cloneInto(
+                    let webauthnResponse = cloneInto(
                                                         webauthnParse(r.responseData.credential),
                                                         window,
                                                         { cloneFunctions: true },
                                                       );
+
+                        
+                    Object.defineProperty(webauthnResponse, 'getClientExtensionResults', function() {
+                        return {};
+                    });                                                               
+                                
                     return webauthnResponse;
                 }, window));
             } catch (e) {
@@ -205,7 +211,7 @@ export function injectU2fInterface() {
         create: (options: CredentialCreationOptions): Promise<PublicKeyCredential | null> => {
             const credentialBackends = new window['wrappedJSObject'].Array(
                 krCredentials,
-                navigator['wrappedJSObject'].credentials.native,
+                // navigator['wrappedJSObject'].credentials.native,
             );
             return window['wrappedJSObject'].Promise.race(
                 credentialBackends
@@ -216,7 +222,7 @@ export function injectU2fInterface() {
         get: (options?: CredentialRequestOptions): Promise<PublicKeyCredential | null | any> => {
             const credentialBackends = new window['wrappedJSObject'].Array(
                 krCredentials,
-                navigator['wrappedJSObject'].credentials.native,
+                // navigator['wrappedJSObject'].credentials.native,
             );
             return window['wrappedJSObject'].Promise.race(
                 credentialBackends

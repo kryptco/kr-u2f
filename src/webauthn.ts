@@ -4,6 +4,7 @@ import { KRYPTON_U2F_MAGIC } from './protocol';
 import { counterToBytes } from './u2f';
 
 const KRYPTON_AAGUID = KRYPTON_U2F_MAGIC.slice(0, 16);
+const ZERO_AAGUID = new Uint8Array([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
 export async function createAuthenticatorDataWithoutAttestation(rpId: string, counter: number): Promise<Uint8Array> {
     const rpIdHash = await crypto_hash_sha256(rpId);
@@ -24,7 +25,7 @@ export async function createAuthenticatorDataWithAttestation(
                                                             ): Promise<Uint8Array> {
     const withoutAttestation = await createAuthenticatorDataWithoutAttestation(rpId, counter);
 
-    const aaguid = KRYPTON_AAGUID;
+    const aaguid = ZERO_AAGUID;
 
     const credIdLen = new Uint8Array(2);
     credIdLen[0] = (credId.length >> 8) & 0xff;

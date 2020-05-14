@@ -160,7 +160,7 @@ async function handle_webauthn_register(msg: any,
         challenge: await to_base64_url_nopad(new Uint8Array(pkOptions.challenge as any)),
         clientExtensions: {},
         hashAlgorithm: 'SHA-256',
-        origin,  
+        origin,
         type: 'webauthn.create',
     });
     const clientDataB64 = await to_base64_url_nopad(clientData);
