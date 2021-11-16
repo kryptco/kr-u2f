@@ -39,7 +39,7 @@
     "build": "webpack --config webpack.prod.js"
   },
   "dependencies": {
-    "aws-sdk": "^2.248.1",
+    "aws-sdk": "^2.814.0",
     "cbor": "^4.1.0",
     "class-transformer": "^0.1.9",
     "jquery": "^3.3.1",
