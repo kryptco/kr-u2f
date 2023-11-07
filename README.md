@@ -1,3 +1,7 @@
+# DEPRECATED
+
+**This project is not maintained.** Please migrate to [Akamai MFA](https://mfa.akamai.com/help).
+
 # Krypton for Browsers (U2F + WebAuthN)
 Krypton brings Universal Second Factor (U2F) + WebAuthn to the browser using keys
 stored in the __Krypton__ ([iOS](https://github.com/kryptco/krypton-ios) or
